@@ -1,11 +1,10 @@
-import LoginScreen from "@/Screens/Login/LoginScreen";
-import React from "react";
+import { Text, View, TouchableOpacity, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native";
 
-export default function Page() {
+export default function RootScreen() {
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <LoginScreen />
+    <SafeAreaView>
+      <Text>Welcome to instapost</Text>
     </SafeAreaView>
   );
 }
