@@ -1,7 +1,12 @@
 // Login
 import React, { useState } from "react";
-import { Alert, Text, TextInput, View, TouchableOpacity } from "react-native";
-import { SafeAreaView } from "react-native";
+import {
+  Alert,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  SafeAreaView,
+} from "react-native";
 import { useRouter } from "expo-router";
 import { styles } from "../styles/loginStyles";
 
@@ -15,7 +20,10 @@ export default function LoginScreen() {
   const handleLogin = () => {
     console.log(email, password);
     if (email && password) {
+      console.log("log in");
       Alert.alert("Inloggningen lyckades");
+      // Needs protecc
+      router.push({ pathname: "/(protected)" });
     } else {
       Alert.alert("Fel");
     }
@@ -38,6 +46,10 @@ export default function LoginScreen() {
         onChangeText={setPassword}
         secureTextEntry
       />
+
+      <TouchableOpacity style={styles.button} onPress={handleLogin}>
+        <Text style={styles.buttonText}>Log in</Text>
+      </TouchableOpacity>
 
       <TouchableOpacity
         style={styles.button}
