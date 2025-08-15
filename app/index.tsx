@@ -1,56 +1,50 @@
-import { Text, View, TouchableOpacity, StyleSheet } from "react-native";
+// Login
+import React, { useState } from "react";
+import { Alert, Text, TextInput, View, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native";
 import { useRouter } from "expo-router";
-import { routeToScreen } from "expo-router/build/useScreens";
+import { styles } from "../styles/loginStyles";
 
-// Starting page
-export default function RootScreen() {
+export default function LoginScreen() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const router = useRouter();
+
+  // Add login controller
+
+  const handleLogin = () => {
+    console.log(email, password);
+    if (email && password) {
+      Alert.alert("Inloggningen lyckades");
+    } else {
+      Alert.alert("Fel");
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>Welcome to instapost</Text>
+      <Text style={styles.title}>Logga In</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="Email"
+        value={email}
+        onChangeText={setEmail}
+        keyboardType="email-address"
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Password"
+        value={password}
+        onChangeText={setPassword}
+        secureTextEntry
+      />
 
       <TouchableOpacity
         style={styles.button}
-        onPress={() => router.push("/screens/login")}
+        onPress={() => router.push("/register")}
       >
-        <Text style={styles.buttonText}>Login</Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={styles.button}
-        onPress={() => router.push("/screens/register")}
-      >
-        <Text style={styles.buttonText}>Create account</Text>
+        <Text style={styles.buttonText}>New user? Create account here</Text>
       </TouchableOpacity>
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 20,
-    backgroundColor: "#fff",
-  },
-  title: {
-    fontSize: 24,
-    marginBottom: 20,
-    textAlign: "center",
-    fontWeight: "bold",
-  },
-  button: {
-    backgroundColor: "#1DA1F2",
-    padding: 8,
-    borderRadius: 12,
-    width: 250,
-    margin: 5,
-  },
-  buttonText: {
-    textAlign: "center",
-    color: "white",
-    fontSize: 16,
-  },
-});

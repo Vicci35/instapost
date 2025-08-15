@@ -6,9 +6,6 @@ export default function RootLayout() {
       screenOptions={{
         headerShown: false,
       }}
-    >
-      <Stack.Screen name="index.tsx" />
-      <Stack.Screen name="screens" />
-    </Stack>
+    />
   );
 }
