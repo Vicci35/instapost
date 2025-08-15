@@ -1,22 +1,16 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Alert, Button, Text, TextInput, View } from "react-native";
-import { styles } from "./LoginScreen.styles";
+import { styles } from "../register/RegisterStyle";
 
-export default function LoginScreen() {
+export default function RegisterScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
-  const handleLogin = () => {
-    if (email && password) {
-      Alert.alert("Inloggningen lyckades");
-    } else {
-      Alert.alert("Fel");
-    }
-  };
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Logga In</Text>
+      <Text style={styles.title}>Bajs</Text>
+
       <TextInput
         style={styles.input}
         placeholder="Email"
@@ -31,7 +25,7 @@ export default function LoginScreen() {
         onChangeText={setPassword}
         secureTextEntry
       />
-      <Button title="Log In" onPress={handleLogin} />
+      <Button title="Log In" />
       <Button title="Register New Account" />
     </View>
   );
