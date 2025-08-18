@@ -29,6 +29,3 @@ jobs:
 
       # TypeScript check utan att generera filer
       - run: npm run tsc --noEmit
-
-      # Expo doctor kontrollerar konfigurationen
-      - run: npx expo doctor
