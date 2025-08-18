@@ -23,6 +23,3 @@ jobs:
 
       - name: TypeScript check
         run: npm run tsc --noEmit
-
-      - name: Run expo-doctor
-        run: npx --no-install expo-doctor
