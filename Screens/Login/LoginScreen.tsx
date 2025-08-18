@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { styles } from "./LoginScreen.styles";
+import { styles } from "../../styles/loginStyles";
 
 export default function LoginScreen() {
   const [email, setEmail] = useState("");
