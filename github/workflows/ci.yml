@@ -25,4 +25,4 @@ jobs:
         run: npm run tsc --noEmit
 
       - name: Run Expo doctor
-        run: ./node_modules/.bin/expo-doctor
+        run: npx --no-install expo-doctor
