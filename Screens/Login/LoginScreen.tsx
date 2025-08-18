@@ -1,10 +1,18 @@
 import React, { useState } from "react";
-import { Alert, Button, Text, TextInput, View } from "react-native";
+import {
+  Alert,
+  Button,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { styles } from "./LoginScreen.styles";
 
 export default function LoginScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = () => {
     if (email && password) {
@@ -31,6 +39,12 @@ export default function LoginScreen() {
         onChangeText={setPassword}
         secureTextEntry
       />
+      <TouchableOpacity
+        onPress={() => setShowPassword(!showPassword)}
+        style={styles.eyeButton}
+      >
+        <Text>{showPassword ? "🙈" : "👁️"}</Text>
+      </TouchableOpacity>
       <Button title="Log In" onPress={handleLogin} />
       <Button title="Register New Account" />
     </View>

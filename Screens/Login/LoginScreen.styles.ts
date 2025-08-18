@@ -20,4 +20,7 @@ export const styles = StyleSheet.create({
     marginBottom: 15,
     borderRadius: 5,
   },
+  eyeButton: {
+    padding: 10,
+  },
 });
