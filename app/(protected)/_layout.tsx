@@ -13,16 +13,27 @@ export default function ProtectedLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: "Home",
+          title: "",
           tabBarIcon: ({ color, size }) => (
             <FontAwesome name="home" size={size} color={color} />
           ),
         }}
       />
+
       <Tabs.Screen
-        name="profile"
+        name="(post)/Post"
         options={{
-          title: "Profile",
+          title: "",
+          tabBarIcon: ({ color, size }) => (
+            <FontAwesome name="camera" size={size} color={color} />
+          ),
+        }}
+      />
+
+      <Tabs.Screen
+        name="(profile)/profile"
+        options={{
+          title: "",
           tabBarIcon: ({ color, size }) => (
             <FontAwesome name="user" size={size} color={color} />
           ),
