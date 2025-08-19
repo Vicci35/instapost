@@ -1,17 +1,21 @@
-import { Text, TouchableOpacity } from "react-native";
+// app/protected/profile.tsx
+import React from "react";
+import { TouchableOpacity, Text } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { handleLogout } from "@/controllers/logoutController";
 import { styles } from "@/styles/protectedStyles";
+import ProfileScreen from "@/Screens/ProfileScreen/ProfileScreen";
 
 export default function Profile() {
   const router = useRouter();
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text>Protected profile</Text>
+      {/* Profilen */}
+      <ProfileScreen />
 
-      {/* Log out option here  */}
+      {/* Log out knapp under profilen */}
       <TouchableOpacity
         style={styles.button}
         onPress={() => handleLogout(router)}
