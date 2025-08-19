@@ -6,7 +6,7 @@ import { FontAwesome } from "@expo/vector-icons";
 import { styles } from "@/styles/loginStyles";
 
 export default function LoginScreen() {
-  const [token, setToken] = useState(true);
+  const [token, setToken] = useState(false);
   const router = useRouter();
 
   // Use fetch to see if token exists or not
