@@ -1,62 +1,32 @@
 // Login
-import React, { useState } from "react";
-import {
-  Alert,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  SafeAreaView,
-} from "react-native";
+import React, { useState, useEffect } from "react";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
-import { styles } from "../styles/loginStyles";
+import { FontAwesome } from "@expo/vector-icons";
+import { styles } from "@/styles/loginStyles";
 
 export default function LoginScreen() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [token, setToken] = useState(true);
   const router = useRouter();
 
-  // Add login controller
+  // Use fetch to see if token exists or not
+  // Choose path depending on state
 
-  const handleLogin = () => {
-    console.log(email, password);
-    if (email && password) {
-      console.log("log in");
-      Alert.alert("Inloggningen lyckades");
-      // Needs protecc
-      router.push({ pathname: "/(protected)" });
-    } else {
-      Alert.alert("Fel");
-    }
-  };
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (token) {
+        router.replace("/(protected)");
+      } else {
+        router.replace("/login");
+      }
+    }, 0);
+
+    return () => clearTimeout(timer);
+  }, [token]);
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>Logga In</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
-        keyboardType="email-address"
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-      />
-
-      <TouchableOpacity style={styles.button} onPress={handleLogin}>
-        <Text style={styles.buttonText}>Log in</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        style={styles.button}
-        onPress={() => router.push("/register")}
-      >
-        <Text style={styles.buttonText}>New user? Create account here</Text>
-      </TouchableOpacity>
+      <FontAwesome name="spinner" size={50} color="blue" />
     </SafeAreaView>
   );
 }

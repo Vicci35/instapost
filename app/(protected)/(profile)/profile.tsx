@@ -1,10 +1,23 @@
-import { View, Text } from "react-native";
+import { Text, TouchableOpacity } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useRouter } from "expo-router";
+import { handleLogout } from "@/controllers/logoutController";
+import { styles } from "@/styles/protectedStyles";
 
 export default function Profile() {
+  const router = useRouter();
+
   return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+    <SafeAreaView style={styles.container}>
       <Text>Protected profile</Text>
+
       {/* Log out option here  */}
-    </View>
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() => handleLogout(router)}
+      >
+        <Text style={styles.buttonText}>Log out</Text>
+      </TouchableOpacity>
+    </SafeAreaView>
   );
 }
