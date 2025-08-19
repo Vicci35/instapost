@@ -1,8 +1,10 @@
-import { SafeAreaView, Text, StyleSheet } from "react-native";
+import { Text } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { styles } from "@/styles/protectedStyles";
 
 export default function Post() {
   return (
-    <SafeAreaView>
+    <SafeAreaView style={styles.container}>
       <Text>New post</Text>
     </SafeAreaView>
   );
