@@ -3,6 +3,8 @@ import { useState } from "react";
 import { Text, TextInput, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
+import { signupUser } from "@/controllers/signupController";
+import { checkInput } from "@/util/validators";
 import { styles } from "../../styles/registerStyle";
 
 export default function RegisterScreen() {
@@ -19,8 +21,17 @@ export default function RegisterScreen() {
       (value) => value.trim() !== ""
     );
 
+    for (const [field, value] of Object.entries(newUser)) {
+      const result = checkInput(field, value, newUser);
+      if (!result.valid) {
+        console.error(result.message);
+        return;
+      }
+    }
+
     if (allFilled) {
-      console.log(newUser);
+      // Send to server
+      signupUser(newUser);
     } else {
       console.error("Fyll i alla fält!");
     }
