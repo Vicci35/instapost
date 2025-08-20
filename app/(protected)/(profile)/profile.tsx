@@ -12,10 +12,8 @@ export default function Profile() {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Profilen */}
       <ProfileScreen />
 
-      {/* Log out knapp under profilen */}
       <TouchableOpacity
         style={styles.button}
         onPress={() => handleLogout(router)}
