@@ -4,6 +4,7 @@ import { Alert, Text, TextInput, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { Platform } from "react-native";
+import * as SecureStore from "expo-secure-store";
 import { sendCredentials } from "@/controllers/loginController";
 import { styles } from "@/styles/loginStyles";
 
@@ -19,6 +20,9 @@ export default function LoginScreen() {
       const token = await sendCredentials(email, password, Platform.OS);
 
       if (token) {
+        if (Platform.OS !== "web") {
+          await SecureStore.setItemAsync("userToken", token);
+        }
         Alert.alert("Inloggningen lyckades");
         router.push({ pathname: "/(protected)" });
       } else {

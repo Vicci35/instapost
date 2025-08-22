@@ -1,4 +1,6 @@
 import { useRouter } from "expo-router";
+import { Platform } from "react-native";
+import * as SecureStore from "expo-secure-store";
 
 export const handleLogout = async (
   router: ReturnType<typeof useRouter>,
@@ -15,6 +17,9 @@ export const handleLogout = async (
     });
 
     if (response.ok) {
+      if (Platform.OS !== "web") {
+        SecureStore.deleteItemAsync("userToken");
+      }
       console.log("Logged out successfully");
       router.replace("/login");
     } else {
