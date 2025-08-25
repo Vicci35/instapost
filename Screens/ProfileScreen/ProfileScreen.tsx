@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import {
   View,
   Text,
@@ -7,7 +7,11 @@ import {
   FlatList,
   ListRenderItem,
 } from "react-native";
+import { useRouter } from "expo-router";
+import { Platform } from "react-native";
+import { handleLogout } from "@/controllers/logoutController";
 import styles from "../../styles/ProfileScreenStyles";
+import { UserContext } from "@/contexts/userContext";
 
 type Post = {
   id: string;
@@ -22,21 +26,24 @@ type User = {
   posts: Post[];
 };
 
-const userData: User = {
-  name: "John Doe",
-  profilePic: "https://i.pravatar.cc/150?img=12",
-  followers: 120,
-  following: 80,
-  posts: [
-    { id: "1", image: "https://picsum.photos/200/200?random=1" },
-    { id: "2", image: "https://picsum.photos/200/200?random=2" },
-    { id: "3", image: "https://picsum.photos/200/200?random=3" },
-    { id: "4", image: "https://picsum.photos/200/200?random=4" },
-    { id: "5", image: "https://picsum.photos/200/200?random=5" },
-  ],
-};
-
 const ProfileScreen: React.FC = () => {
+  const { user, logout } = useContext(UserContext);
+  const router = useRouter();
+
+  const userData: User = {
+    name: user?.name || "None",
+    profilePic: "https://i.pravatar.cc/150?img=12",
+    followers: 120,
+    following: 80,
+    posts: [
+      { id: "1", image: "https://picsum.photos/200/200?random=1" },
+      { id: "2", image: "https://picsum.photos/200/200?random=2" },
+      { id: "3", image: "https://picsum.photos/200/200?random=3" },
+      { id: "4", image: "https://picsum.photos/200/200?random=4" },
+      { id: "5", image: "https://picsum.photos/200/200?random=5" },
+    ],
+  };
+
   const renderPost: ListRenderItem<Post> = ({ item }) => (
     <Image source={{ uri: item.image }} style={styles.postImage} />
   );
@@ -82,6 +89,13 @@ const ProfileScreen: React.FC = () => {
         renderItem={renderPost}
         style={styles.postsContainer}
       />
+
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() => handleLogout(router, Platform.OS, logout)}
+      >
+        <Text style={styles.buttonText}>Log out</Text>
+      </TouchableOpacity>
     </View>
   );
 };

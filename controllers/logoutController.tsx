@@ -4,7 +4,8 @@ import * as SecureStore from "expo-secure-store";
 
 export const handleLogout = async (
   router: ReturnType<typeof useRouter>,
-  platform: string
+  platform: string,
+  logout: () => void
 ) => {
   // !!! ÄNDRA TILL ERAN IP ADRESS + :3000
   const URL =
@@ -20,6 +21,7 @@ export const handleLogout = async (
       if (Platform.OS !== "web") {
         SecureStore.deleteItemAsync("userToken");
       }
+      logout();
       console.log("Logged out successfully");
       router.replace("/login");
     } else {
