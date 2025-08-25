@@ -77,4 +77,18 @@ export default StyleSheet.create({
     width: "33%",
     height: 120,
   },
+  button: {
+    color: "white",
+    backgroundColor: "#1DA1F2",
+    padding: 8,
+    borderRadius: 12,
+    width: 250,
+    textAlign: "center",
+    margin: "auto",
+  },
+  buttonText: {
+    textAlign: "center",
+    color: "white",
+    fontSize: 16,
+  },
 });
