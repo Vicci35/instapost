@@ -19,7 +19,8 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
-  
+  const [following, setFollowing] = useState<string[]>(["varsa", "larsa"]);
+
    const BACKEND_URL =
     Platform.OS === "web"
       ? "http://localhost:3000"          
@@ -74,13 +75,15 @@ export default function Home() {
     fetchPosts();
   };
 
+  const filteredPosts = posts.filter((post) => following.includes(post.username));
+
   return (
     <SafeAreaView style={styles.container}>
       {loading ? (
         <ActivityIndicator size="large" color="#000" style={{ marginTop: 20 }} />
       ) : (
         <FlatList
-          data={posts}
+          data={filteredPosts}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
             <PostCard
