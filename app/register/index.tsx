@@ -1,8 +1,11 @@
 // Register
 import { useState } from "react";
 import { Text, TextInput, TouchableOpacity } from "react-native";
-import { SafeAreaView } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
+import { Platform } from "react-native";
+import { signupUser } from "@/controllers/signupController";
+import { checkInput } from "@/util/validators";
 import { styles } from "../../styles/registerStyle";
 
 export default function RegisterScreen() {
@@ -14,13 +17,29 @@ export default function RegisterScreen() {
   });
   const router = useRouter();
 
-  function handleSignup() {
+  async function handleSignup() {
     const allFilled = Object.values(newUser).every(
       (value) => value.trim() !== ""
     );
 
+    for (const [field, value] of Object.entries(newUser)) {
+      const result = checkInput(field, value, newUser);
+      if (!result.valid) {
+        console.error(result.message);
+        return;
+      }
+    }
+
     if (allFilled) {
-      console.log(newUser);
+      // Send to server
+      await signupUser(newUser, Platform.OS);
+      setUser({
+        email: "",
+        username: "",
+        password: "",
+        repeatPassword: "",
+      });
+      router.push("/login");
     } else {
       console.error("Fyll i alla fält!");
     }
