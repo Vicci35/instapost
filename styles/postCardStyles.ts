@@ -15,12 +15,13 @@ export const styles = StyleSheet.create({
   username: {
     fontWeight: "bold",
     fontSize: 16,
-    marginBottom: 8,
+    
   },
   image: {
     width: "100%",
     height: 250,
     borderRadius: 8,
+    marginTop: 8,
   },
   caption: {
     marginTop: 8,
@@ -33,7 +34,14 @@ export const styles = StyleSheet.create({
     marginTop: 8,
   },
   likes: {
-    marginLeft: 8,
+    marginLeft: 12,
     fontWeight: "600",
+    fontSize: 14,
+  },
+  profileImage: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    marginRight: 8,
   },
 });
