@@ -6,7 +6,7 @@ export const sendCredentials = async (
 ) => {
   // !!! ÄNDRA TILL ERAN IP ADRESS + :3000
   const URL =
-    platform === "web" ? "http://localhost:3000" : "http://192.168.1.223:3000";
+    platform === "web" ? "http://localhost:3000" : "http://192.168.1.140:3000";
 
   try {
     const response = await fetch(URL + "/api/login", {
