@@ -5,9 +5,12 @@ export interface User {
   repeatPassword: string;
 }
 
-export const signupUser = async (userData: User) => {
-  console.log(userData);
-  const response = await fetch("http://localhost:3000/signup", {
+export const signupUser = async (userData: User, platform: string) => {
+  // !!! ÄNDRA TILL ERAN IP ADRESS + :3000
+  const URL =
+    platform === "web" ? "http://localhost:3000" : "http://192.168.1.140:3000";
+
+  const response = await fetch(URL + "/signup", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -16,5 +19,4 @@ export const signupUser = async (userData: User) => {
   });
 
   const data = await response.json();
-  console.log("From server:", data);
 };
