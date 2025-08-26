@@ -8,6 +8,7 @@ import {
   ListRenderItem,
 } from "react-native";
 import styles from "../../styles/ProfileScreenStyles";
+import { useRouter } from "expo-router"; // ✅ importera router
 
 type Post = {
   id: string;
@@ -37,6 +38,8 @@ const userData: User = {
 };
 
 const ProfileScreen: React.FC = () => {
+  const router = useRouter(); // ✅ initiera router
+
   const renderPost: ListRenderItem<Post> = ({ item }) => (
     <Image source={{ uri: item.image }} style={styles.postImage} />
   );
@@ -65,9 +68,14 @@ const ProfileScreen: React.FC = () => {
             </View>
           </View>
           <View style={styles.buttonRow}>
-            <TouchableOpacity style={styles.editButton}>
+            <TouchableOpacity
+              style={styles.editButton}
+              onPress={() => router.push("..")}
+              // 👆 navigerar till rätt skärm
+            >
               <Text style={styles.editButtonText}>Redigera profil</Text>
             </TouchableOpacity>
+
             <TouchableOpacity style={styles.followButton}>
               <Text style={styles.followButtonText}>Följ</Text>
             </TouchableOpacity>

@@ -1,11 +1,10 @@
 // app/protected/profile.tsx
 import React from "react";
-import { TouchableOpacity, Text } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView, TouchableOpacity, Text } from "react-native";
 import { useRouter } from "expo-router";
+import ProfileScreen from "@/Screens/ProfileScreen/ProfileScreen";
 import { handleLogout } from "@/controllers/logoutController";
 import { styles } from "@/styles/protectedStyles";
-import ProfileScreen from "@/Screens/ProfileScreen/ProfileScreen";
 
 export default function Profile() {
   const router = useRouter();
