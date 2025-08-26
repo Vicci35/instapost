@@ -25,11 +25,11 @@ export default function LoginScreen() {
         try {
           const response = await fetch("http://localhost:3000/gate/token", {
             method: "GET",
-            credentials: "include", // skicka cookies
+            credentials: "include",
           });
           if (response.ok) {
             const data = await response.json();
-            hasToken = !!data.user; // beroende på hur backend svarar
+            hasToken = !!data.user;
           }
         } catch (error) {
           console.error("Token check failed:", error);
