@@ -31,6 +31,16 @@ export default function ProtectedLayout() {
       />
 
       <Tabs.Screen
+        name="(search)/search"
+        options={{
+          title: "",
+          tabBarIcon: ({ color, size }) => (
+            <FontAwesome name="search" size={size} color={color} />
+          ),
+        }}
+      />
+
+      <Tabs.Screen
         name="(profile)/profile"
         options={{
           title: "",
