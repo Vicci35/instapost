@@ -74,7 +74,7 @@ const ProfileScreen: React.FC = () => {
           <View style={styles.buttonRow}>
             <TouchableOpacity
               style={styles.editButton}
-              onPress={() => router.push("..")}
+              onPress={() => router.push("/(protected)/(profile)/settings")}
             >
               <Text style={styles.editButtonText}>Redigera profil</Text>
             </TouchableOpacity>
