@@ -72,9 +72,13 @@ const ProfileScreen: React.FC = () => {
             </View>
           </View>
           <View style={styles.buttonRow}>
-            <TouchableOpacity style={styles.editButton}>
+            <TouchableOpacity
+              style={styles.editButton}
+              onPress={() => router.push("..")}
+            >
               <Text style={styles.editButtonText}>Redigera profil</Text>
             </TouchableOpacity>
+
             <TouchableOpacity style={styles.followButton}>
               <Text style={styles.followButtonText}>Följ</Text>
             </TouchableOpacity>
