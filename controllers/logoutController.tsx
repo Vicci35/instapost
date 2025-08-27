@@ -1,5 +1,4 @@
 import { useRouter } from "expo-router";
-import { Platform } from "react-native";
 import * as SecureStore from "expo-secure-store";
 
 export const handleLogout = async (
@@ -7,32 +6,22 @@ export const handleLogout = async (
   platform: string,
   logout: () => void
 ) => {
-  // !!! ÄNDRA TILL ERAN IP ADRESS + :3000
-  /*
-    Seb: 192.168.1.198
-    VT: 
-    Viccan: 
-  */
-  const URL =
-    platform === "web" ? "http://localhost:3000" : "http://192.168.1.198:3000";
-
-  try {
-    const response = await fetch(URL + "/logout", {
-      method: "POST",
-      credentials: "include",
-    });
-
-    if (response.ok) {
-      if (Platform.OS !== "web") {
-        SecureStore.deleteItemAsync("userToken");
+  if (platform === "web") {
+    try {
+      const response = await fetch("http://localhost:3000/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+      if (!response.ok) {
+        console.error("Logout failed", await response.text());
       }
-      logout();
-      console.log("Logged out successfully");
-      router.replace("/login");
-    } else {
-      console.error("Logout failed");
+    } catch (err) {
+      console.error("Error logging out:", err);
     }
-  } catch (err) {
-    console.error("Error logging out:", err);
+  } else {
+    await SecureStore.deleteItemAsync("userToken");
   }
+
+  logout();
+  router.replace("/login");
 };

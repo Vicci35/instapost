@@ -4,7 +4,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useState } from "react";
 import { FontAwesome } from "@expo/vector-icons";
 
-export default function Post() {
+export default function Index() {
   const [facing, setFacing] = useState<CameraType>("back");
   const [permission, requestPermission] = useCameraPermissions();
 
@@ -34,18 +34,18 @@ export default function Post() {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView style={{ flex: 1 }} edges={["top", "bottom"]}>
       <View style={styles.container}>
         <CameraView style={styles.camera} facing={facing}>
-          <View style={styles.buttonContainer}></View>
-          <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
-            {/* Fontawesome icon  */}
-            <Text style={styles.text}>Flip Camera</Text>
-          </TouchableOpacity>
-          {/* Take photo button */}
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={toggleCameraFacing}
+            >
+              <Text style={styles.text}>Flip Camera</Text>
+            </TouchableOpacity>
+          </View>
         </CameraView>
-
-        <Text> Or upload photo from gallery</Text>
       </View>
     </SafeAreaView>
   );
@@ -57,8 +57,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   camera: {
-    width: 400,
-    height: 400,
+    flex: 1,
   },
   buttonContainer: {
     flex: 1,
@@ -68,7 +67,7 @@ const styles = StyleSheet.create({
   },
   button: {
     flex: 1,
-    alignSelf: "center",
+    alignSelf: "flex-end",
     alignItems: "center",
   },
   text: {
