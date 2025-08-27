@@ -41,7 +41,7 @@ export default function ProtectedLayout() {
       />
 
       <Tabs.Screen
-        name="(profile)/profile"
+        name="(profile)"
         options={{
           title: "",
           tabBarIcon: ({ color, size }) => (
