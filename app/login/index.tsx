@@ -5,7 +5,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { Platform } from "react-native";
 import * as SecureStore from "expo-secure-store";
-import { sendCredentials, fetchUserData } from "@/controllers/loginController";
+import { sendCredentials } from "@/controllers/loginController";
 import { UserContext } from "@/contexts/userContext";
 import { styles } from "@/styles/loginStyles";
 
@@ -15,27 +15,39 @@ export default function LoginScreen() {
   const { login } = useContext(UserContext);
   const router = useRouter();
 
-  // Add login controller
   const handleLogin = async () => {
-    console.log("Sending credentials");
-    if (email && password) {
-      const token = await sendCredentials(email, password, Platform.OS);
-      const userData = await fetchUserData(email, password, Platform.OS);
+    if (!email || !password) {
+      Alert.alert("Fel", "Fyll i både email och lösenord");
+      return;
+    }
 
-      if (token) {
-        if (Platform.OS !== "web") {
-          await SecureStore.setItemAsync("userToken", token);
-        }
+    try {
+      const platform = Platform.OS;
+      const result = await sendCredentials(email, password, platform);
 
-        login(userData, token);
-
-        Alert.alert("Inloggningen lyckades");
-        router.push({ pathname: "/(protected)" });
-      } else {
-        console.error("Could not log in");
+      if (!result) {
+        Alert.alert("Fel", "Inloggningen misslyckades");
+        return;
       }
-    } else {
-      Alert.alert("Fel");
+
+      const { token, userData } = result;
+
+      if (!token) {
+        Alert.alert("Fel", "Inloggningen misslyckades");
+        return;
+      }
+
+      if (platform !== "web") {
+        await SecureStore.setItemAsync("userToken", token);
+      }
+
+      login(userData, token);
+
+      Alert.alert("Inloggningen lyckades");
+      router.push("/(protected)");
+    } catch (err) {
+      console.error("Login failed:", err);
+      Alert.alert("Fel", "Något gick fel vid inloggningen");
     }
   };
 
