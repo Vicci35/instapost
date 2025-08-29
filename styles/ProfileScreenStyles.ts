@@ -91,4 +91,11 @@ export default StyleSheet.create({
     color: "white",
     fontSize: 16,
   },
+  bio: {
+    fontSize: 14,
+    color: "black",
+    marginTop: 8,
+    marginLeft: 16,
+    marginRight: 16,
+  },
 });
