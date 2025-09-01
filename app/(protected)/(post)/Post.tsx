@@ -141,7 +141,7 @@ export default function Post() {
           }}
         >
           <Text> Or upload photo from gallery</Text>
-          <PickImage />
+          <PickImage setUri={setUri} />
         </View>
       </View>
     </SafeAreaView>
