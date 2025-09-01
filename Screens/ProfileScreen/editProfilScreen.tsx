@@ -4,6 +4,7 @@ import { useRouter } from "expo-router";
 import { useContext, useEffect, useState } from "react";
 import styles from "../../styles/editProfilStyles";
 import * as ImagePicker from "expo-image-picker";
+import { updateProfile } from "@/controllers/userController";
 
 import { UserContext } from "@/contexts/userContext";
 
@@ -51,44 +52,17 @@ export default function EditProfile() {
 
   const handleSave = async () => {
     try {
-      if (!token) throw new Error("Ingen token hittades, logga in igen");
+      if (!token) throw new Error("Ingen token hittades. logga in igen");
 
-      const formData = new FormData();
-      formData.append("name", name);
-      formData.append("bio", bio);
+      const updatedUser = await updateProfile(token, name, bio, profilePic);
 
-      if (profilePic && !profilePic.startsWith("http")) {
-        const uriParts = profilePic.split(".");
-        const fileType = uriParts[uriParts.length - 1];
+      if (!updatedUser) throw new Error("Misslyckades med att spara profil");
 
-        formData.append("profilePic", {
-          uri: profilePic,
-          name: `profile.${fileType}`,
-          type: `image/${fileType}`,
-        } as any);
-      }
-
-      const response = await fetch(
-        "http://192.168.1.198:3000/api/users/update-profile",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          body: formData,
-        }
-      );
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Något gick fel");
-      }
-      const data = await response.json();
-      setUser(data.user);
+      setUser(updatedUser);
       router.push("/(protected)/(profile)/profile");
       console.log("Profil sparad!");
-    } catch (error) {
-      console.error("Fel vid sparande:", error);
+    } catch (err) {
+      console.error("Fel vid sparande:", err);
     }
   };
 
