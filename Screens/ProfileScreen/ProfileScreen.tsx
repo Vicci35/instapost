@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -6,56 +6,87 @@ import {
   TouchableOpacity,
   FlatList,
   ListRenderItem,
+  ActivityIndicator,
+  Platform,
 } from "react-native";
 import { useRouter } from "expo-router";
-import { Platform } from "react-native";
 import { handleLogout } from "@/controllers/logoutController";
 import styles from "../../styles/ProfileScreenStyles";
 import { UserContext } from "@/contexts/userContext";
-import * as SecureStore from "expo-secure-store";
 
 type Post = {
-  id: string;
-  image: string;
+  _id: string;
+  imageUrl: string;
+  caption?: string;
+  createdAt?: string;
 };
 
 type User = {
   name: string;
-  profilePic: string;
+  profileImage?: string;
   bio?: string;
-  followers: number;
-  following: number;
+  followers: string[];
+  following: string[];
   posts: Post[];
 };
 
-const ProfileScreen: React.FC = async () => {
-  const { user, logout } = useContext(UserContext);
+const ProfileScreen: React.FC = () => {
+  const { user, token, logout } = useContext(UserContext);
+  const [userData, setUserData] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  const userData: User = {
-    name: user?.name || "None",
-    profilePic: "https://i.pravatar.cc/150?img=12",
-    bio: user?.bio || "",
-    followers: 120,
-    following: 80,
-    posts: [
-      { id: "1", image: "https://picsum.photos/200/200?random=1" },
-      { id: "2", image: "https://picsum.photos/200/200?random=2" },
-      { id: "3", image: "https://picsum.photos/200/200?random=3" },
-      { id: "4", image: "https://picsum.photos/200/200?random=4" },
-      { id: "5", image: "https://picsum.photos/200/200?random=5" },
-    ],
-  };
+  useEffect(() => {
+    if (!token) return;
+
+    const fetchUserData = async () => {
+      try {
+        console.log("Fetching user data med token:", token);
+        const res = await fetch("http://192.168.1.198:3000/api/users/user", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = await res.json();
+        console.log("User data fetched:", data);
+
+        setUserData({
+          name: data.user.name,
+          profileImage: data.user.profileImage,
+          bio: data.user.bio || "",
+          followers: data.user.followers || [],
+          following: data.user.following || [],
+          posts: data.user.posts || [],
+        });
+      } catch (err) {
+        console.error("Fel vid hämtning av användare:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserData();
+  }, [token]);
 
   const renderPost: ListRenderItem<Post> = ({ item }) => (
-    <Image source={{ uri: item.image }} style={styles.postImage} />
+    <Image source={{ uri: item.imageUrl }} style={styles.postImage} />
   );
+
+  if (loading || !userData) {
+    return (
+      <View style={styles.container}>
+        <ActivityIndicator size="large" color="#3498db" />
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <Image
-          source={{ uri: userData.profilePic }}
+          source={
+            userData.profileImage
+              ? { uri: userData.profileImage }
+              : require("../../assets/images/defaultBildProfil.jpg")
+          }
           style={styles.profilePic}
         />
         <View style={styles.infoContainer}>
@@ -66,11 +97,11 @@ const ProfileScreen: React.FC = async () => {
               <Text style={styles.statLabel}>Inlägg</Text>
             </View>
             <View style={styles.stat}>
-              <Text style={styles.statNumber}>{userData.followers}</Text>
+              <Text style={styles.statNumber}>{userData.followers.length}</Text>
               <Text style={styles.statLabel}>Följare</Text>
             </View>
             <View style={styles.stat}>
-              <Text style={styles.statNumber}>{userData.following}</Text>
+              <Text style={styles.statNumber}>{userData.following.length}</Text>
               <Text style={styles.statLabel}>Följer</Text>
             </View>
           </View>
@@ -92,7 +123,7 @@ const ProfileScreen: React.FC = async () => {
 
       <FlatList
         data={userData.posts}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item._id}
         numColumns={3}
         renderItem={renderPost}
         style={styles.postsContainer}
