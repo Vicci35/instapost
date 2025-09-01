@@ -6,6 +6,7 @@ import { useState, useRef } from "react";
 import { FontAwesome } from "@expo/vector-icons";
 import { Ionicons } from "@expo/vector-icons";
 import { cameraStyles } from "@/styles/cameraStyles";
+import { PickImage } from "@/app/components/ImagePicker";
 
 export default function Post() {
   const [facing, setFacing] = useState<CameraType>("back");
@@ -133,11 +134,6 @@ export default function Post() {
       <View style={cameraStyles.container}>
         <View>{uri ? RenderPicture() : RenderCamera()}</View>
 
-        {/*
-                Add:
-                Upload from phone gallery
-                Next button --> To edit post
-            */}
         <View
           style={{
             alignItems: "center",
@@ -145,9 +141,7 @@ export default function Post() {
           }}
         >
           <Text> Or upload photo from gallery</Text>
-          <TouchableOpacity style={{ marginTop: 10 }}>
-            <FontAwesome name="image" size={80} color="#1da0f261" />
-          </TouchableOpacity>
+          <PickImage />
         </View>
       </View>
     </SafeAreaView>

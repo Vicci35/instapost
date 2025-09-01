@@ -23,6 +23,8 @@ export const sendCredentials = async (
       return null;
     }
 
+    console.log(data.userData);
+
     return { token: data.token, userData: data.userData };
   } catch (err) {
     console.log("PANIC!", err);
