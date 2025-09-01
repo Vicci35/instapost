@@ -12,6 +12,7 @@ import { Platform } from "react-native";
 import { handleLogout } from "@/controllers/logoutController";
 import styles from "../../styles/ProfileScreenStyles";
 import { UserContext } from "@/contexts/userContext";
+import * as SecureStore from "expo-secure-store";
 
 type Post = {
   id: string;
@@ -26,7 +27,7 @@ type User = {
   posts: Post[];
 };
 
-const ProfileScreen: React.FC = () => {
+const ProfileScreen: React.FC = async () => {
   const { user, logout } = useContext(UserContext);
   const router = useRouter();
 
