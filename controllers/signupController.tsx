@@ -7,8 +7,13 @@ export interface User {
 
 export const signupUser = async (userData: User, platform: string) => {
   // !!! ÄNDRA TILL ERAN IP ADRESS + :3000
+  /*
+    Seb: 192.168.1.198
+    VT: 
+    Viccan: 
+  */
   const URL =
-    platform === "web" ? "http://localhost:3000" : "http://192.168.1.140:3000";
+    platform === "web" ? "http://localhost:3000" : "http://192.168.1.198:3000";
 
   const response = await fetch(URL + "/signup", {
     method: "POST",

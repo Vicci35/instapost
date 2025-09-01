@@ -1,138 +1,155 @@
-import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, Image, Alert, Platform } from "react-native";
-import * as ImagePicker from "expo-image-picker";
-import * as Location from "expo-location";
-import { useRouter } from "expo-router";
-import { styles } from "@/styles/postStyles"; // kan skapa eget för postScreen om du vill
+import { CameraView, CameraType, useCameraPermissions } from "expo-camera";
+import { Text, View, Button, TouchableOpacity } from "react-native";
+import { Image } from "expo-image";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useState, useRef } from "react";
+import { FontAwesome } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
+import { cameraStyles } from "@/styles/cameraStyles";
 
 export default function Post() {
-  const [caption, setCaption] = useState("");
-  const [image, setImage] = useState<string | null>(null);
-  const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
-  const router = useRouter();
+  const [facing, setFacing] = useState<CameraType>("back");
+  const [permission, requestPermission] = useCameraPermissions();
+  const [flashOn, setFlashOn] = useState<boolean>(false);
+  const ref = useRef<CameraView | null>(null);
+  const [uri, setUri] = useState<string | null>(null);
 
-  const BACKEND_URL =
-    Platform.OS === "web"
-      ? "http://localhost:3000"
-      : "http://192.168.1.140:3000"; // byt till din IP
+  if (!permission) {
+    return (
+      <View style={cameraStyles.container}>
+        <Text style={{ fontSize: 100 }}>
+          This app is not allowed to use the camera
+        </Text>
+      </View>
+    );
+  }
 
-  // Välj bild från galleri
-   const pickImage = async () => {
-    if (Platform.OS === "web") {
-      Alert.alert("Inte tillgängligt på webben", "Välj bild stöds endast på mobil.");
-      return;
-    }
+  if (!permission.granted) {
+    return (
+      <View style={cameraStyles.container}>
+        <Text>Camera Test</Text>
+        <FontAwesome name="camera" size={48} color={"black"} />
+        <Text>Allow this app to use the camera</Text>
+        <Button title="Grant permission" onPress={requestPermission} />
+      </View>
+    );
+  }
 
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== "granted") {
-      Alert.alert("Behörighet nekad", "Vi behöver tillgång till ditt galleri.");
-      return;
-    }
+  function toggleCameraFacing() {
+    setFacing((current: CameraType) => (current === "back" ? "front" : "back"));
+  }
 
-    const result = await ImagePicker.launchImageLibraryAsync({ quality: 0.7, base64: true });
-    if (!result.canceled) setImage(result.assets[0].uri);
+  function toggleFlash() {
+    setFlashOn((prev) => !prev);
+  }
+
+  const takePicture = async () => {
+    console.log("click");
+    const photo = await ref.current?.takePictureAsync();
+    setUri(photo?.uri ?? null);
   };
 
+  const RenderCamera = () => {
+    return (
+      <CameraView
+        ref={ref}
+        style={cameraStyles.camera}
+        facing={facing}
+        flash={flashOn ? "on" : "off"}
+      >
+        {/* Flip Camera */}
+        <View
+          style={{
+            flex: 1,
+            flexDirection: "row",
+            justifyContent: "space-evenly",
+            marginBottom: 10,
+          }}
+        >
+          <TouchableOpacity
+            style={cameraStyles.buttonIcon}
+            onPress={toggleCameraFacing}
+          >
+            <Ionicons
+              name="camera-reverse"
+              size={60}
+              color="rgba(255, 255, 255, 0.7)"
+            />
+          </TouchableOpacity>
 
-  // Ta en bild med kameran
- const takePhoto = async () => {
-    if (Platform.OS === "web") {
-      Alert.alert("Inte tillgängligt på webben", "Kamera stöds endast på mobil.");
-      return;
-    }
+          {/* Take picture */}
+          <TouchableOpacity
+            style={cameraStyles.buttonIcon}
+            onPress={takePicture}
+          >
+            <Ionicons
+              name="camera"
+              size={60}
+              color="rgba(255, 255, 255, 0.7)"
+            />
+          </TouchableOpacity>
 
-    const { status } = await ImagePicker.requestCameraPermissionsAsync();
-    if (status !== "granted") {
-      Alert.alert("Behörighet nekad", "Vi behöver tillgång till kameran.");
-      return;
-    }
-
-    const result = await ImagePicker.launchCameraAsync({ quality: 0.7, base64: true });
-    if (!result.canceled) setImage(result.assets[0].uri);
+          {/* Enable/Disable flash */}
+          <TouchableOpacity
+            style={[{ paddingRight: 30 }, cameraStyles.buttonIcon]}
+            onPress={toggleFlash}
+          >
+            <Ionicons
+              name={flashOn ? "flash" : "flash-off"}
+              size={60}
+              color="rgba(255,255,255,0.7)"
+            />
+          </TouchableOpacity>
+        </View>
+      </CameraView>
+    );
   };
 
-  // Hämta geo-tag
-  const getLocation = async () => {
-    if (Platform.OS === "web") {
-      Alert.alert("Inte tillgängligt på webben", "Geo-tag stöds endast på mobil.");
-      return;
-    }
+  const RenderPicture = () => {
+    return (
+      <View style={{ alignItems: "center" }}>
+        <Image
+          source={uri ? { uri } : undefined}
+          contentFit="contain"
+          style={{ height: 380, width: 380, aspectRatio: 1 }}
+        />
+        <TouchableOpacity
+          onPress={() => setUri(null)}
+          style={cameraStyles.photoButtonContainer}
+        >
+          <Text style={cameraStyles.photoButtonText}>Take another picture</Text>
+        </TouchableOpacity>
 
-    const { status } = await Location.requestForegroundPermissionsAsync();
-    if (status !== "granted") {
-      Alert.alert("Behörighet nekad", "Vi behöver din plats för geo-tag.");
-      return;
-    }
-
-    const loc = await Location.getCurrentPositionAsync({});
-    setLocation({ lat: loc.coords.latitude, lng: loc.coords.longitude });
-  };
-
-  // Skicka inlägget till backend
-  const handlePost = async () => {
-    if (!caption || !image) {
-      Alert.alert("Fyll i bild och caption");
-      return;
-    }
-    try {
-      const formData = new FormData();
-      formData.append("caption", caption);
-      formData.append("image", {
-        uri: image,
-        name: "photo.jpg",
-        type: "image/jpeg",
-      } as any);
-      if (location) {
-        formData.append("lat", location.lat.toString());
-        formData.append("lng", location.lng.toString());
-      }
-
-      const res = await fetch(`${BACKEND_URL}/posts`, {
-        method: "POST",
-        body: formData,
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
-
-      if (!res.ok) throw new Error("Kunde inte posta");
-
-      Alert.alert("Inlägget skickat!");
-      router.push("/(protected)"); 
-    } catch (error) {
-      console.error(error);
-      Alert.alert("Fel vid postning");
-    }
+        <TouchableOpacity style={cameraStyles.photoButtonContainer}>
+          <Text style={cameraStyles.photoButtonText}>Continue</Text>
+        </TouchableOpacity>
+      </View>
+    );
   };
 
   return (
-    <View style={styles.container}>
-      <TextInput
-        placeholder="Skriv något..."
-        value={caption}
-        onChangeText={setCaption}
-        style={styles.input}
-      />
+    <SafeAreaView style={{ flex: 1 }}>
+      {/* Render camera or display taken photo */}
+      <View style={cameraStyles.container}>
+        <View>{uri ? RenderPicture() : RenderCamera()}</View>
 
-      {image && <Image source={{ uri: image }} style={styles.imagePreview} />}
-
-      <View style={styles.buttonRow}>
-        <TouchableOpacity onPress={pickImage} style={styles.button}>
-          <Text style={styles.buttonText}>Välj bild</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity onPress={takePhoto} style={styles.button}>
-          <Text style={styles.buttonText}>Ta foto</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity onPress={getLocation} style={styles.button}>
-          <Text style={styles.buttonText}>Geo-tag</Text>
-        </TouchableOpacity>
+        {/*
+                Add:
+                Upload from phone gallery
+                Next button --> To edit post
+            */}
+        <View
+          style={{
+            alignItems: "center",
+            marginTop: 10,
+          }}
+        >
+          <Text> Or upload photo from gallery</Text>
+          <TouchableOpacity style={{ marginTop: 10 }}>
+            <FontAwesome name="image" size={80} color="#1da0f261" />
+          </TouchableOpacity>
+        </View>
       </View>
-
-      <TouchableOpacity onPress={handlePost} style={styles.postButton}>
-        <Text style={styles.postButtonText}>Posta</Text>
-      </TouchableOpacity>
-    </View>
+    </SafeAreaView>
   );
 }

@@ -5,6 +5,7 @@ import { styles } from "@/styles/postCardStyles";
 
 type PostCardProps = {
   username: string;
+  profileImageUrl?: string;
   imageUrl: string;
   caption: string;
   likes: number;
@@ -14,6 +15,7 @@ type PostCardProps = {
 
 export default function PostCard({
   username,
+  profileImageUrl,
   imageUrl,
   caption,
   likes,
