@@ -70,19 +70,24 @@ export default function EditProfile() {
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Redigera Profil</Text>
 
-      <TouchableOpacity onPress={pickImage}>
-        {profilePic ? (
-          <Image source={{ uri: profilePic }} style={styles.profilePic} />
-        ) : (
-          <View style={styles.placeholderPic}>
-            <Text>Välj bild</Text>
-          </View>
-        )}
-      </TouchableOpacity>
+      <Image
+        source={
+          profilePic
+            ? { uri: profilePic }
+            : require("../../assets/images/defaultBildProfil.jpg")
+        }
+        style={styles.profilePic}
+      />
 
-      <TouchableOpacity style={styles.cameraButton} onPress={takePhoto}>
-        <Text style={styles.cameraButtonText}>Ta foto</Text>
-      </TouchableOpacity>
+      <View style={styles.buttonRow}>
+        <TouchableOpacity style={styles.cameraButton} onPress={takePhoto}>
+          <Text style={styles.cameraButtonText}>Ta foto</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.cameraButton} onPress={pickImage}>
+          <Text style={styles.cameraButtonText}>Välj från bibliotek</Text>
+        </TouchableOpacity>
+      </View>
 
       <Text style={styles.label}>Namn</Text>
       <TextInput
