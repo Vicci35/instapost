@@ -1,31 +1,28 @@
 import { View, Text, TextInput, TouchableOpacity, Image } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import styles from "../../styles/editProfilStyles";
 import * as ImagePicker from "expo-image-picker";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { storage } from "../../util/firebaseConfig";
 
-// FIX: blob måste anropas som en funktion (.blob()), inte bara .blob
-// FIX: saknade backticks runt path
-const uploadImage = async (uri: string, userId: string) => {
-  const response = await fetch(uri);
-  const blob = await response.blob();
-
-  const storageRef = ref(storage, `profilePics/${userId}.jpg`);
-  await uploadBytes(storageRef, blob);
-
-  const downloadURL = await getDownloadURL(storageRef);
-  return downloadURL;
-};
+import { UserContext } from "@/contexts/userContext";
 
 export default function EditProfile() {
   const router = useRouter();
+  const { user, token, setUser } = useContext(UserContext);
+  console.log("Context i editprofile:", { user, token });
 
-  const [name, setName] = useState("John Doe");
-  const [bio, setBio] = useState("Hej! Följ mig @bestfriend");
+  const [name, setName] = useState("");
+  const [bio, setBio] = useState("");
   const [profilePic, setProfilePic] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (user) {
+      setName(user.name || "");
+      setBio(user.bio || "");
+      setProfilePic(user.profileImage || null);
+    }
+  }, [user]);
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -54,27 +51,42 @@ export default function EditProfile() {
 
   const handleSave = async () => {
     try {
-      let imageURL = profilePic;
-      if (profilePic) {
-        imageURL = await uploadImage(profilePic, "12345");
+      if (!token) throw new Error("Ingen token hittades, logga in igen");
+
+      const formData = new FormData();
+      formData.append("name", name);
+      formData.append("bio", bio);
+
+      if (profilePic && !profilePic.startsWith("http")) {
+        const uriParts = profilePic.split(".");
+        const fileType = uriParts[uriParts.length - 1];
+
+        formData.append("profilePic", {
+          uri: profilePic,
+          name: `profile.${fileType}`,
+          type: `image/${fileType}`,
+        } as any);
       }
 
-      await fetch("http://localhost:3000/api/users/update-profile", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          // FIX: måste vara en sträng
-          Authorization: `Bearer DITT_TOKEN`,
-        },
-        body: JSON.stringify({
-          name,
-          bio,
-          profilePic: imageURL,
-        }),
-      });
+      const response = await fetch(
+        "http://192.168.1.198:3000/api/users/update-profile",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        }
+      );
 
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Något gick fel");
+      }
+      const data = await response.json();
+      setUser(data.user);
+      router.push("/(protected)/(profile)/profile");
       console.log("Profil sparad!");
-      router.back();
     } catch (error) {
       console.error("Fel vid sparande:", error);
     }

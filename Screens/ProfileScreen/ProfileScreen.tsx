@@ -22,6 +22,7 @@ type Post = {
 type User = {
   name: string;
   profilePic: string;
+  bio?: string;
   followers: number;
   following: number;
   posts: Post[];
@@ -34,6 +35,7 @@ const ProfileScreen: React.FC = async () => {
   const userData: User = {
     name: user?.name || "None",
     profilePic: "https://i.pravatar.cc/150?img=12",
+    bio: user?.bio || "",
     followers: 120,
     following: 80,
     posts: [
@@ -84,6 +86,7 @@ const ProfileScreen: React.FC = async () => {
               <Text style={styles.followButtonText}>Följ</Text>
             </TouchableOpacity>
           </View>
+          {userData.bio ? <Text style={styles.bio}>{userData.bio}</Text> : null}
         </View>
       </View>
 
