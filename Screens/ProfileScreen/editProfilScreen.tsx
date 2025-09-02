@@ -1,4 +1,11 @@
-import { View, Text, TextInput, TouchableOpacity, Image } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  Image,
+  Platform,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { useContext, useEffect, useState } from "react";
@@ -52,16 +59,10 @@ export default function EditProfile() {
   };
 
   const handleSave = async () => {
-    try {
-      if (!token) throw new Error("Ingen token hittades. logga in igen");
+    if (!token) throw new Error("Ingen token hittades. logga in igen");
 
-      const updatedUser = await updateProfile(
-        token,
-        name,
-        bio,
-        profilePic,
-        Platform.OS
-      );
+    try {
+      const updatedUser = await updateProfile(token, name, bio, profilePic);
 
       if (!updatedUser) throw new Error("Misslyckades med att spara profil");
 
