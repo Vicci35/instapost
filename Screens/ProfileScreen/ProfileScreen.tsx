@@ -31,20 +31,30 @@ type User = {
 };
 
 const ProfileScreen: React.FC = () => {
-  const { user, token, logout } = useContext(UserContext);
+  const { token, logout } = useContext(UserContext);
   const [userData, setUserData] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
-    if (!token) return;
+    if (!token) {
+      console.log("Ingen token hittad");
+      setLoading(false);
+      return;
+    }
 
     const fetchUserData = async () => {
       try {
         console.log("Fetching user data med token:", token);
+
         const res = await fetch("http://192.168.1.198:3000/api/users/user", {
           headers: { Authorization: `Bearer ${token}` },
         });
+
+        if (!res.ok) {
+          throw new Error(`Fel vid hämtning: ${res.status}`);
+        }
+
         const data = await res.json();
         console.log("User data fetched:", data);
 
@@ -70,10 +80,18 @@ const ProfileScreen: React.FC = () => {
     <Image source={{ uri: item.imageUrl }} style={styles.postImage} />
   );
 
-  if (loading || !userData) {
+  if (loading) {
     return (
       <View style={styles.container}>
         <ActivityIndicator size="large" color="#3498db" />
+      </View>
+    );
+  }
+
+  if (!userData) {
+    return (
+      <View style={styles.container}>
+        <Text>Ingen användardata hittades</Text>
       </View>
     );
   }
