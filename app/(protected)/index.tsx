@@ -140,7 +140,7 @@ export default function Home() {
           {searchText.length > 0 ? (
             <FlatList
               data={searchResults}
-              // FIX: Använd _id som nyckel
+              
               keyExtractor={(item) => item._id}
               renderItem={({ item }) => (
                 <View style={{ padding: 10, borderBottomWidth: 1, borderBottomColor: '#eee' }}>
@@ -156,7 +156,7 @@ export default function Home() {
               keyExtractor={(item) => item.id}
               renderItem={({ item }) => (
                 <PostCard
-                  // Skicka med id
+
                   id={item.id}
                   username={item.username}
                   profileImageUrl={item.profileImageUrl}
