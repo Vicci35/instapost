@@ -5,7 +5,7 @@ export const getProfile = async (token: string) => {
   const URL =
     Platform.OS === "web"
       ? "http://localhost:3000"
-      : "http://192.168.68.105:3000";
+      : "http://192.168.68.140:3000";
 
   try {
     const response = await fetch(`${URL}/api/users/profile`, {
