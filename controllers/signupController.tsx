@@ -13,7 +13,7 @@ export const signupUser = async (userData: User, platform: string) => {
     Viccan: 192.168.68.105
   */
   const URL =
-    platform === "web" ? "http://localhost:3000" : "http://192.168.1.140:3000";
+    platform === "web" ? "http://localhost:3000" : "http://192.168.1.207:3000";
   
 
   const response = await fetch(URL + "/signup", {
