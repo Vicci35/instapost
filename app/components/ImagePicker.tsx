@@ -1,5 +1,5 @@
 import * as ImagePicker from "expo-image-picker";
-import { Alert, Text, TouchableOpacity, View } from "react-native";
+import { Alert, TouchableOpacity } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 
 // Let user pick images from gallery
@@ -15,7 +15,11 @@ const requestGalleryPermission = async () => {
   return true;
 };
 
-const pickImage = async () => {
+const pickImage = async ({
+  setUri,
+}: {
+  setUri: (uri: string | null) => void;
+}) => {
   const hasPermission = await requestGalleryPermission();
   if (!hasPermission) return;
 
@@ -27,13 +31,21 @@ const pickImage = async () => {
   });
 
   if (!result.canceled) {
-    console.log(result.assets[0].uri);
+    setUri(result.assets[0].uri);
   }
 };
 
-export const PickImage = () => {
+export const PickImage = ({
+  setUri,
+}: {
+  setUri: (uri: string | null) => void;
+}) => {
+  const handlePress = () => {
+    pickImage({ setUri });
+  };
+
   return (
-    <TouchableOpacity style={{ marginTop: 10 }} onPress={pickImage}>
+    <TouchableOpacity style={{ marginTop: 10 }} onPress={handlePress}>
       <FontAwesome name="image" size={80} color="#1da0f261" />
     </TouchableOpacity>
   );

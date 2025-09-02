@@ -11,7 +11,6 @@ import { useRouter } from "expo-router";
 import { useContext, useEffect, useState } from "react";
 import styles from "../../styles/editProfilStyles";
 import * as ImagePicker from "expo-image-picker";
-import { updateProfile } from "@/controllers/userController";
 import { UserContext } from "@/contexts/userContext";
 
 export default function EditProfile() {
@@ -30,6 +29,7 @@ export default function EditProfile() {
     }
   }, [user]);
 
+  // Välj bild från bibliotek
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -48,6 +48,7 @@ export default function EditProfile() {
     }
   };
 
+  // Ta foto med kamera
   const takePhoto = async () => {
     const result = await ImagePicker.launchCameraAsync({
       allowsEditing: true,
@@ -59,6 +60,7 @@ export default function EditProfile() {
       setProfilePic(result.assets[0].uri);
     }
   };
+
   const handleSave = async () => {
     if (!token) return;
 
@@ -69,6 +71,7 @@ export default function EditProfile() {
 
       if (profilePic) {
         if (typeof profilePic === "string") {
+          // React Native URI
           formData.append("file", {
             uri: profilePic.startsWith("file://")
               ? profilePic
@@ -77,6 +80,7 @@ export default function EditProfile() {
             name: "profile.jpg",
           } as any);
         } else {
+          // Web: profilePic är en File
           formData.append("file", profilePic);
         }
       }
@@ -97,7 +101,7 @@ export default function EditProfile() {
       }
 
       const updatedUser = await res.json();
-      setUser(updatedUser.user);
+      setUser(updatedUser.user); // uppdatera context
       router.push("/(protected)/(profile)/profile");
     } catch (err) {
       console.error("Fel vid sparande:", err);

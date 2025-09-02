@@ -1,69 +1,55 @@
 // controllers/userController.ts
-import { Platform } from "react-native";
+import { Request, Response } from "express";
+import path from "path";
+import fs from "fs";
+import User from "../models/User.js";
 
-export const updateProfile = async (
-  token: string,
-  name: string,
-  bio: string,
-  profilePic: string | File | null
-) => {
-  const URL =
-    Platform.OS === "web"
-      ? "http://localhost:3000"
-      : "http://192.168.68.105:3000"; // ändra till din lokala IP
+const UPLOAD_DIR = path.join(process.cwd(), "uploads");
 
+// Skapa uploads-mappen om den inte finns
+if (!fs.existsSync(UPLOAD_DIR)) {
+  fs.mkdirSync(UPLOAD_DIR);
+  console.log("✅ Skapade uploads-mappen");
+}
+
+// Uppdatera profil
+export const updateProfile = async (req: Request, res: Response) => {
   try {
-    const formData = new FormData();
-    formData.append("name", name);
-    formData.append("bio", bio);
+    const userId = req.user?._id;
+    if (!userId) return res.status(401).json({ error: "Ingen användare" });
 
-    if (profilePic) {
-      if (Platform.OS === "web") {
-        console.log("🌐 Web: profilePic är en File:", profilePic);
-        formData.append("profilePic", profilePic as File);
-      } else {
-        // React Native
-        const uriParts = (profilePic as string).split(".");
-        const fileType = uriParts[uriParts.length - 1].toLowerCase();
-        const fileName = `profile.${fileType}`;
-        const mimeType = fileType === "png" ? "image/png" : "image/jpeg";
+    const { name, bio } = req.body;
 
-        console.log("📱 React Native: profilePic URI:", profilePic);
-        console.log("📱 Filnamn:", fileName, "MIME:", mimeType);
+    let profileImageUrl;
 
-        formData.append("profilePic", {
-          uri: (profilePic as string).replace("file://", ""),
-          type: mimeType,
-          name: fileName,
-        } as any);
-      }
+    // Hantera fil
+    if (req.files && req.files.file) {
+      const file = req.files.file as any;
+      const filename = `${Date.now()}-${file.name}`;
+      const uploadPath = path.join(UPLOAD_DIR, filename);
+
+      await file.mv(uploadPath); // express-fileupload
+
+      profileImageUrl = `http://localhost:3000/uploads/${filename}`;
     }
 
-    console.log("📤 FormData ready to send:");
-    // Skriv ut alla entries i FormData
-    formData.forEach((value, key) => {
-      console.log("  ", key, ":", value);
-    });
-
-    const response = await fetch(`${URL}/api/users/update-profile`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        // Låt fetch sätta Content-Type själv
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      {
+        ...(name && { name }),
+        ...(bio && { bio }),
+        ...(profileImageUrl && { profileImage: profileImageUrl }),
       },
-      body: formData,
-    });
+      { new: true }
+    ).select("-password");
 
-    const data = await response.json();
-    console.log("📥 Response from server:", data);
-
-    if (!response.ok || !data.success) {
-      throw new Error(data.error || "Något gick fel vid uppdatering");
+    if (!updatedUser) {
+      return res.status(404).json({ error: "Användaren hittades inte" });
     }
 
-    return data.user;
+    res.json({ success: true, user: updatedUser });
   } catch (err) {
-    console.error("🔥 Fel i updateProfile:", err);
-    return null;
+    console.error("🔥 Fel vid uppdatering av profil:", err);
+    res.status(500).json({ error: "Fel vid uppdatering av profil" });
   }
 };
