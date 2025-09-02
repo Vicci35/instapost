@@ -21,7 +21,7 @@ export default function ProtectedLayout() {
       />
 
       <Tabs.Screen
-        name="(post)/Post"
+        name="(post)"
         options={{
           title: "",
           tabBarIcon: ({ color, size }) => (

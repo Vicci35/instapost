@@ -7,13 +7,15 @@ import { FontAwesome } from "@expo/vector-icons";
 import { Ionicons } from "@expo/vector-icons";
 import { cameraStyles } from "@/styles/cameraStyles";
 import { PickImage } from "@/app/components/ImagePicker";
+import { router } from "expo-router";
+import { useImage } from "@/contexts/imageContext";
 
 export default function Post() {
   const [facing, setFacing] = useState<CameraType>("back");
   const [permission, requestPermission] = useCameraPermissions();
   const [flashOn, setFlashOn] = useState<boolean>(false);
   const ref = useRef<CameraView | null>(null);
-  const [uri, setUri] = useState<string | null>(null);
+  const { uri, setUri } = useImage();
 
   if (!permission) {
     return (
@@ -107,8 +109,10 @@ export default function Post() {
   };
 
   const RenderPicture = () => {
+    console.log(uri);
+
     return (
-      <View style={{ alignItems: "center" }}>
+      <View style={{ alignItems: "center", justifyContent: "center" }}>
         <Image
           source={uri ? { uri } : undefined}
           contentFit="contain"
@@ -121,7 +125,16 @@ export default function Post() {
           <Text style={cameraStyles.photoButtonText}>Take another picture</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={cameraStyles.photoButtonContainer}>
+        <TouchableOpacity
+          style={cameraStyles.photoButtonContainer}
+          onPress={() => {
+            if (uri) {
+              router.push("/EditPost");
+            } else {
+              console.warn("No URI available");
+            }
+          }}
+        >
           <Text style={cameraStyles.photoButtonText}>Continue</Text>
         </TouchableOpacity>
       </View>
@@ -133,7 +146,6 @@ export default function Post() {
       {/* Render camera or display taken photo */}
       <View style={cameraStyles.container}>
         <View>{uri ? RenderPicture() : RenderCamera()}</View>
-
         <View
           style={{
             alignItems: "center",
@@ -141,7 +153,7 @@ export default function Post() {
           }}
         >
           <Text> Or upload photo from gallery</Text>
-          <PickImage />
+          <PickImage setUri={setUri} />
         </View>
       </View>
     </SafeAreaView>

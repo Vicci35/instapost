@@ -4,12 +4,11 @@ export const updateProfile = async (
   token: string,
   name: string,
   bio: string,
-  profilePic: string | null
+  profilePic: string | null,
+  platform: string
 ) => {
   const URL =
-    Platform.OS === "web"
-      ? "http://localhost:3000"
-      : "http://192.168.1.198:3000";
+    platform === "web" ? "http://localhost:3000" : "http://192.168.1.198:3000";
 
   try {
     const formData = new FormData();
