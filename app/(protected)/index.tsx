@@ -1,9 +1,16 @@
 import { useState, useEffect } from "react";
-import { View, Text, TextInput, FlatList, ActivityIndicator, RefreshControl, Platform } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  FlatList,
+  ActivityIndicator,
+  RefreshControl,
+  Platform,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { styles } from "@/styles/protectedStyles";
 import PostCard from "../components/PostCard";
-
 
 interface Post {
   id: string;
@@ -30,18 +37,17 @@ export default function Home() {
   const [allUsers, setAllUsers] = useState<User[]>([]);
   const [searchResults, setSearchResults] = useState<User[]>([]);
 
-   const BACKEND_URL =
+  const BACKEND_URL =
     Platform.OS === "web"
-      ? "http://localhost:3000"          
-      : "http://192.168.1.140:3000";     // byt till din IP
+      ? "http://localhost:3000"
+      : "http://192.168.1.140:3000"; // byt till din IP
 
-  
-   const fetchPosts = async () => {
+  const fetchPosts = async () => {
     try {
       const response = await fetch(`${BACKEND_URL}/posts`);
       if (!response.ok) throw new Error("Kunde inte hämta inlägg");
       const data = await response.json();
-      setPosts(data);
+      setPosts(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error("Fel vid hämtning av inlägg:", error);
     } finally {
@@ -50,10 +56,9 @@ export default function Home() {
     }
   };
 
-  
   const fetchUsers = async () => {
     try {
-      const response = await fetch(`${BACKEND_URL}/users`); 
+      const response = await fetch(`${BACKEND_URL}/users`);
       if (!response.ok) throw new Error("Kunde inte hämta användare");
       const data = await response.json();
       setAllUsers(data);
@@ -64,13 +69,12 @@ export default function Home() {
 
   useEffect(() => {
     fetchPosts();
-    fetchUsers(); 
+    fetchUsers();
   }, []);
 
-  
   useEffect(() => {
     if (searchText.length > 0) {
-      const filteredUsers = allUsers.filter(user =>
+      const filteredUsers = allUsers.filter((user) =>
         user.username.toLowerCase().includes(searchText.toLowerCase())
       );
       setSearchResults(filteredUsers);
@@ -97,7 +101,6 @@ export default function Home() {
 
   const handleComment = (postId: string) => {
     console.log("Kommenterat på inlägget:", postId);
-
   };
 
   const onRefresh = () => {
@@ -105,7 +108,9 @@ export default function Home() {
     fetchPosts();
   };
 
-  const filteredPosts = posts.filter((post) => following.includes(post.username));
+  const filteredPosts = posts.filter((post) =>
+    following.includes(post.username)
+  );
 
   return (
     <SafeAreaView style={styles.container}>
@@ -119,13 +124,17 @@ export default function Home() {
           borderColor: "#ccc",
           padding: 8,
           margin: 12,
-          borderRadius: 8
+          borderRadius: 8,
         }}
       />
       {/* Slut på det nya sökfältet */}
 
       {loading ? (
-        <ActivityIndicator size="large" color="#000" style={{ marginTop: 20 }} />
+        <ActivityIndicator
+          size="large"
+          color="#000"
+          style={{ marginTop: 20 }}
+        />
       ) : (
         <>
           {/* NY: Villkorlig rendering för att visa antingen sökresultat eller inlägg */}
@@ -134,9 +143,19 @@ export default function Home() {
               data={searchResults}
               keyExtractor={(item) => item.username}
               renderItem={({ item }) => (
-                <View style={{ padding: 10, borderBottomWidth: 1, borderBottomColor: '#eee' }}>
-                  <Text style={{ fontWeight: 'bold' }}>{item.username}</Text>
-                  <Text>{following.includes(item.username) ? 'Du följer denna användare' : 'Följ'}</Text>
+                <View
+                  style={{
+                    padding: 10,
+                    borderBottomWidth: 1,
+                    borderBottomColor: "#eee",
+                  }}
+                >
+                  <Text style={{ fontWeight: "bold" }}>{item.username}</Text>
+                  <Text>
+                    {following.includes(item.username)
+                      ? "Du följer denna användare"
+                      : "Följ"}
+                  </Text>
                 </View>
               )}
               contentContainerStyle={{ padding: 12 }}
