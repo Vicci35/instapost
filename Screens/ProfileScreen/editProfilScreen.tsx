@@ -12,6 +12,7 @@ import { useContext, useEffect, useState } from "react";
 import styles from "../../styles/editProfilStyles";
 import * as ImagePicker from "expo-image-picker";
 import { UserContext } from "@/contexts/userContext";
+import { API_BASE_URL } from "../../config/api"; // <-- NY IMPORT!
 
 export default function EditProfile() {
   const router = useRouter();
@@ -105,6 +106,7 @@ export default function EditProfile() {
       console.log("Profile pic:", profilePic);
       console.log("User current image:", user?.profileImage);
       console.log("Platform:", Platform.OS);
+      console.log("API URL:", API_BASE_URL); // <-- NY LOGG!
 
       const formData = new FormData();
       formData.append("name", name || "");
@@ -153,16 +155,14 @@ export default function EditProfile() {
 
       console.log("Sending request to server...");
 
-      const res = await fetch(
-        "http://localhost:3000/api/users/update-profile",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          body: formData,
-        }
-      );
+      // <-- ENDA ÄNDRINGEN HÄR: Använd API_BASE_URL istället för hårdkodad URL
+      const res = await fetch(`${API_BASE_URL}/api/users/update-profile`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
 
       console.log("Response status:", res.status);
 
@@ -178,14 +178,14 @@ export default function EditProfile() {
 
       if (result.success && result.user) {
         setUser(result.user);
-        console.log(" Profile updated successfully!");
+        console.log("✅ Profile updated successfully!");
         console.log("New profile image:", result.user.profileImage);
         router.push("/(protected)/(profile)/profile");
       } else {
         throw new Error("Invalid response from server");
       }
     } catch (err) {
-      console.error(" Error saving profile:", err);
+      console.error("❌ Error saving profile:", err);
     }
   };
 
