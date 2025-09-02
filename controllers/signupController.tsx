@@ -9,11 +9,12 @@ export const signupUser = async (userData: User, platform: string) => {
   // !!! ÄNDRA TILL ERAN IP ADRESS + :3000
   /*
     Seb: 192.168.1.198
-    VT: 
+    VT: 192.168.1.140
     Viccan: 192.168.68.105
   */
   const URL =
-    platform === "web" ? "http://localhost:3000" : "http://192.168.68.105:3000";
+    platform === "web" ? "http://localhost:3000" : "http://192.168.1.207:3000";
+  
 
   const response = await fetch(URL + "/signup", {
     method: "POST",

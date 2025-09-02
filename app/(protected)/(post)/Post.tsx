@@ -49,7 +49,7 @@ export default function Post() {
   }
 
   function toggleCameraFacing() {
-    setFacing((current) => (current === "back" ? "front" : "back"));
+    setFacing((current: CameraType) => (current === "back" ? "front" : "back"));
   }
 
   function toggleFlash() {
@@ -139,7 +139,7 @@ export default function Post() {
           style={cameraStyles.photoButtonContainer}
           onPress={() => {
             if (uri) {
-              router.push("/EditPost");
+              router.push("../EditPost");
             } else {
               console.warn("No URI available");
             }
