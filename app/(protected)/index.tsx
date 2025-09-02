@@ -41,7 +41,7 @@ export default function Home() {
 
   const fetchUsers = async () => {
     try {
-      const response = await fetch(`${BACKEND_URL}/users`);
+      const response = await fetch(`${BACKEND_URL}/api/users`);
       if (!response.ok) throw new Error("Kunde inte hämta användare");
       const data = await response.json();
       setAllUsers(data);
