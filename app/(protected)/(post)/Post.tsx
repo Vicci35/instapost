@@ -2,7 +2,7 @@ import { CameraView, CameraType, useCameraPermissions } from "expo-camera";
 import { Text, View, Button, TouchableOpacity } from "react-native";
 import { Image } from "expo-image";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useState, useRef } from "react";
+import { useState, useRef, useContext } from "react";
 import { FontAwesome } from "@expo/vector-icons";
 import { Ionicons } from "@expo/vector-icons";
 import { cameraStyles } from "@/styles/cameraStyles";
@@ -10,12 +10,22 @@ import { PickImage } from "@/app/components/ImagePicker";
 import { router } from "expo-router";
 import { useImage } from "@/contexts/imageContext";
 
+// TA BORT SEN
+import { handleLogout } from "@/controllers/logoutController";
+import { UserContext } from "@/contexts/userContext";
+import { Platform } from "react-native";
+// TA BORT SEN
+
 export default function Post() {
   const [facing, setFacing] = useState<CameraType>("back");
   const [permission, requestPermission] = useCameraPermissions();
   const [flashOn, setFlashOn] = useState<boolean>(false);
   const ref = useRef<CameraView | null>(null);
   const { uri, setUri } = useImage();
+
+  // TA BORT SEN
+  const { user, token, setUser, logout } = useContext(UserContext);
+  // TA BORT SEN
 
   if (!permission) {
     return (
@@ -145,7 +155,14 @@ export default function Post() {
     <SafeAreaView style={{ flex: 1 }}>
       {/* Render camera or display taken photo */}
       <View style={cameraStyles.container}>
-        <View>{uri ? RenderPicture() : RenderCamera()}</View>
+        <View
+          style={{
+            alignItems: "center",
+            marginTop: 10,
+          }}
+        >
+          {uri ? RenderPicture() : RenderCamera()}
+        </View>
         <View
           style={{
             alignItems: "center",
@@ -156,6 +173,12 @@ export default function Post() {
           <PickImage setUri={setUri} />
         </View>
       </View>
+
+      <TouchableOpacity
+        onPress={() => handleLogout(router, Platform.OS, logout)}
+      >
+        <Text>Log out</Text>
+      </TouchableOpacity>
     </SafeAreaView>
   );
 }
