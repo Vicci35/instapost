@@ -21,6 +21,7 @@ type Post = {
   caption?: string;
   createdAt?: string;
 };
+
 type User = {
   name: string;
   profileImage?: string;
@@ -40,15 +41,15 @@ const ProfileScreen: React.FC = () => {
     useCallback(() => {
       const fetchUserData = async () => {
         if (!token) return;
+        setLoading(true);
         try {
-          setLoading(true);
           const freshUser = await getProfile(token);
           if (freshUser) {
             setUserData(freshUser);
             setUser(freshUser);
           }
         } catch (err) {
-          console.error("Fel vid hämtning av användardata:", err);
+          console.error(err);
         } finally {
           setLoading(false);
         }
