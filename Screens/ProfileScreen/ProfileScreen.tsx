@@ -10,9 +10,9 @@ import {
   Platform,
 } from "react-native";
 import { useRouter, useFocusEffect } from "expo-router";
-import { handleLogout } from "@/controllers/logoutController";
 import { getProfile } from "@/controllers/profileController";
 import styles from "../../styles/ProfileScreenStyles";
+import { handleLogout } from "@/controllers/logoutController";
 import { UserContext } from "@/contexts/userContext";
 
 type Post = {
