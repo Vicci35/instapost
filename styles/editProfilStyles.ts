@@ -88,4 +88,9 @@ export default StyleSheet.create({
     fontSize: 16,
     textAlign: "center",
   },
+  buttonRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginVertical: 10,
+  },
 });

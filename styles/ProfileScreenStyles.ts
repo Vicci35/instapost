@@ -4,6 +4,7 @@ export default StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
+    paddingTop: 20,
   },
   header: {
     flexDirection: "row",
@@ -90,5 +91,12 @@ export default StyleSheet.create({
     textAlign: "center",
     color: "white",
     fontSize: 16,
+  },
+  bio: {
+    fontSize: 14,
+    color: "black",
+    marginTop: 8,
+    marginLeft: 16,
+    marginRight: 16,
   },
 });

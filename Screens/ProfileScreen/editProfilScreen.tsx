@@ -1,31 +1,37 @@
-import { View, Text, TextInput, TouchableOpacity, Image } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  Image,
+  Platform,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import styles from "../../styles/editProfilStyles";
+import { Platform } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { storage } from "../../util/firebaseConfig";
+import { updateProfile } from "@/controllers/userController";
 
-// FIX: blob måste anropas som en funktion (.blob()), inte bara .blob
-// FIX: saknade backticks runt path
-const uploadImage = async (uri: string, userId: string) => {
-  const response = await fetch(uri);
-  const blob = await response.blob();
-
-  const storageRef = ref(storage, `profilePics/${userId}.jpg`);
-  await uploadBytes(storageRef, blob);
-
-  const downloadURL = await getDownloadURL(storageRef);
-  return downloadURL;
-};
+import { UserContext } from "@/contexts/userContext";
 
 export default function EditProfile() {
   const router = useRouter();
+  const { user, token, setUser } = useContext(UserContext);
+  console.log("Context i editprofile:", { user, token });
 
-  const [name, setName] = useState("John Doe");
-  const [bio, setBio] = useState("Hej! Följ mig @bestfriend");
+  const [name, setName] = useState("");
+  const [bio, setBio] = useState("");
   const [profilePic, setProfilePic] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (user) {
+      setName(user.name || "");
+      setBio(user.bio || "");
+      setProfilePic(user.profileImage || null);
+    }
+  }, [user]);
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -53,30 +59,18 @@ export default function EditProfile() {
   };
 
   const handleSave = async () => {
+    if (!token) throw new Error("Ingen token hittades. logga in igen");
+
     try {
-      let imageURL = profilePic;
-      if (profilePic) {
-        imageURL = await uploadImage(profilePic, "12345");
-      }
+      const updatedUser = await updateProfile(token, name, bio, profilePic);
 
-      await fetch("http://localhost:3000/api/users/update-profile", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          // FIX: måste vara en sträng
-          Authorization: `Bearer DITT_TOKEN`,
-        },
-        body: JSON.stringify({
-          name,
-          bio,
-          profilePic: imageURL,
-        }),
-      });
+      if (!updatedUser) throw new Error("Misslyckades med att spara profil");
 
+      setUser(updatedUser);
+      router.push("/(protected)/(profile)/profile");
       console.log("Profil sparad!");
-      router.back();
-    } catch (error) {
-      console.error("Fel vid sparande:", error);
+    } catch (err) {
+      console.error("Fel vid sparande:", err);
     }
   };
 
@@ -84,19 +78,24 @@ export default function EditProfile() {
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Redigera Profil</Text>
 
-      <TouchableOpacity onPress={pickImage}>
-        {profilePic ? (
-          <Image source={{ uri: profilePic }} style={styles.profilePic} />
-        ) : (
-          <View style={styles.placeholderPic}>
-            <Text>Välj bild</Text>
-          </View>
-        )}
-      </TouchableOpacity>
+      <Image
+        source={
+          profilePic
+            ? { uri: profilePic }
+            : require("../../assets/images/defaultBildProfil.jpg")
+        }
+        style={styles.profilePic}
+      />
 
-      <TouchableOpacity style={styles.cameraButton} onPress={takePhoto}>
-        <Text style={styles.cameraButtonText}>Ta foto</Text>
-      </TouchableOpacity>
+      <View style={styles.buttonRow}>
+        <TouchableOpacity style={styles.cameraButton} onPress={takePhoto}>
+          <Text style={styles.cameraButtonText}>Ta foto</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.cameraButton} onPress={pickImage}>
+          <Text style={styles.cameraButtonText}>Välj från bibliotek</Text>
+        </TouchableOpacity>
+      </View>
 
       <Text style={styles.label}>Namn</Text>
       <TextInput
