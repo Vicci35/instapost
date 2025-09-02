@@ -29,61 +29,129 @@ export default function EditProfile() {
     }
   }, [user]);
 
-  // Välj bild från bibliotek
   const pickImage = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 1,
-    });
+    try {
+      const { status } =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== "granted") {
+        alert(
+          "Vi behöver tillgång till dina foton för att du ska kunna välja en profilbild."
+        );
+        return;
+      }
 
-    if (!result.canceled) {
-      const uri =
-        Platform.OS === "web"
-          ? result.assets[0].uri
-          : result.assets[0].uri.replace("file://", "");
-      setProfilePic(uri);
-      console.log("Picked image URI:", uri);
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+      });
+
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        const asset = result.assets[0];
+        console.log("Image picked:", asset);
+
+        if (Platform.OS === "web") {
+          setProfilePic(asset.uri);
+        } else {
+          const uri = asset.uri;
+          setProfilePic(uri);
+          console.log("Set profile pic URI:", uri);
+        }
+      }
+    } catch (error) {
+      console.error("Error picking image:", error);
+      alert("Kunde inte välja bild. Försök igen.");
     }
   };
 
-  // Ta foto med kamera
   const takePhoto = async () => {
-    const result = await ImagePicker.launchCameraAsync({
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 1,
-    });
+    try {
+      const { status } = await ImagePicker.requestCameraPermissionsAsync();
+      if (status !== "granted") {
+        alert(
+          "Vi behöver tillgång till kameran för att du ska kunna ta en profilbild."
+        );
+        return;
+      }
 
-    if (!result.canceled) {
-      setProfilePic(result.assets[0].uri);
+      const result = await ImagePicker.launchCameraAsync({
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+      });
+
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        const asset = result.assets[0];
+        console.log("Photo taken:", asset);
+        setProfilePic(asset.uri);
+      }
+    } catch (error) {
+      console.error("Error taking photo:", error);
+      alert("Kunde inte ta foto. Försök igen.");
     }
   };
 
   const handleSave = async () => {
-    if (!token) return;
+    if (!token) {
+      alert("Du är inte inloggad.");
+      return;
+    }
 
     try {
-      const formData = new FormData();
-      formData.append("name", name);
-      formData.append("bio", bio);
+      console.log("=== STARTING SAVE PROCESS ===");
+      console.log("Name:", name);
+      console.log("Bio:", bio);
+      console.log("Profile pic:", profilePic);
+      console.log("User current image:", user?.profileImage);
+      console.log("Platform:", Platform.OS);
 
-      if (profilePic) {
-        if (typeof profilePic === "string") {
-          // React Native URI
-          formData.append("file", {
-            uri: profilePic.startsWith("file://")
-              ? profilePic
-              : "file://" + profilePic,
-            type: "image/jpeg",
-            name: "profile.jpg",
-          } as any);
+      const formData = new FormData();
+      formData.append("name", name || "");
+      formData.append("bio", bio || "");
+
+      const hasNewImage =
+        profilePic &&
+        typeof profilePic === "string" &&
+        profilePic !== user?.profileImage &&
+        !profilePic.startsWith("http");
+
+      console.log("Has new image:", hasNewImage);
+
+      if (hasNewImage) {
+        if (Platform.OS === "web") {
+          try {
+            const response = await fetch(profilePic);
+            const blob = await response.blob();
+            formData.append("file", blob, "profile.jpg");
+            console.log("Web: Added blob to formData, size:", blob.size);
+          } catch (error) {
+            console.error("Error converting web image:", error);
+            alert("Kunde inte bearbeta bilden. Försök igen.");
+            return;
+          }
         } else {
-          // Web: profilePic är en File
-          formData.append("file", profilePic);
+          const filename =
+            profilePic.split("/").pop() || `profile_${Date.now()}.jpg`;
+          const match = /\.(\w+)$/.exec(filename);
+          const type = match ? `image/${match[1]}` : "image/jpeg";
+
+          const fileObject = {
+            uri: profilePic,
+            type: type,
+            name: filename,
+          };
+
+          formData.append("file", fileObject as any);
+          console.log("React Native: Added file to formData", {
+            filename,
+            type,
+            uri: profilePic,
+          });
         }
       }
+
+      console.log("Sending request to server...");
 
       const res = await fetch(
         "http://localhost:3000/api/users/update-profile",
@@ -96,15 +164,28 @@ export default function EditProfile() {
         }
       );
 
+      console.log("Response status:", res.status);
+
+      const responseText = await res.text();
+      console.log("Response text:", responseText);
+
       if (!res.ok) {
-        throw new Error("Misslyckades med att spara profil");
+        throw new Error(`Server error: ${res.status} - ${responseText}`);
       }
 
-      const updatedUser = await res.json();
-      setUser(updatedUser.user); // uppdatera context
-      router.push("/(protected)/(profile)/profile");
+      const result = JSON.parse(responseText);
+      console.log("Parsed result:", result);
+
+      if (result.success && result.user) {
+        setUser(result.user);
+        console.log(" Profile updated successfully!");
+        console.log("New profile image:", result.user.profileImage);
+        router.push("/(protected)/(profile)/profile");
+      } else {
+        throw new Error("Invalid response from server");
+      }
     } catch (err) {
-      console.error("Fel vid sparande:", err);
+      console.error(" Error saving profile:", err);
     }
   };
 
