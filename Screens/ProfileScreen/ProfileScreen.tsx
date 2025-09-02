@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState, useCallback } from "react";
 import {
   View,
   Text,
@@ -9,8 +9,9 @@ import {
   ActivityIndicator,
   Platform,
 } from "react-native";
-import { useRouter } from "expo-router";
+import { useRouter, useFocusEffect } from "expo-router";
 import { handleLogout } from "@/controllers/logoutController";
+import { getProfile } from "@/controllers/profileController";
 import styles from "../../styles/ProfileScreenStyles";
 import { UserContext } from "@/contexts/userContext";
 
@@ -20,7 +21,6 @@ type Post = {
   caption?: string;
   createdAt?: string;
 };
-
 type User = {
   name: string;
   profileImage?: string;
@@ -31,70 +31,49 @@ type User = {
 };
 
 const ProfileScreen: React.FC = () => {
-  const { token, logout } = useContext(UserContext);
-  const [userData, setUserData] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { user, token, setUser, logout } = useContext(UserContext);
+  const [userData, setUserData] = useState<User | null>(user || null);
+  const [loading, setLoading] = useState(!user);
   const router = useRouter();
 
-  useEffect(() => {
-    if (!token) {
-      console.log("Ingen token hittad");
-      setLoading(false);
-      return;
-    }
-
-    const fetchUserData = async () => {
-      try {
-        console.log("Fetching user data med token:", token);
-
-        const res = await fetch("http://192.168.1.198:3000/api/users/user", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        if (!res.ok) {
-          throw new Error(`Fel vid hämtning: ${res.status}`);
+  useFocusEffect(
+    useCallback(() => {
+      const fetchUserData = async () => {
+        if (!token) return;
+        try {
+          setLoading(true);
+          const freshUser = await getProfile(token);
+          if (freshUser) {
+            setUserData(freshUser);
+            setUser(freshUser);
+          }
+        } catch (err) {
+          console.error("Fel vid hämtning av användardata:", err);
+        } finally {
+          setLoading(false);
         }
-
-        const data = await res.json();
-        console.log("User data fetched:", data);
-
-        setUserData({
-          name: data.user.name,
-          profileImage: data.user.profileImage,
-          bio: data.user.bio || "",
-          followers: data.user.followers || [],
-          following: data.user.following || [],
-          posts: data.user.posts || [],
-        });
-      } catch (err) {
-        console.error("Fel vid hämtning av användare:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUserData();
-  }, [token]);
+      };
+      fetchUserData();
+    }, [token])
+  );
 
   const renderPost: ListRenderItem<Post> = ({ item }) => (
     <Image source={{ uri: item.imageUrl }} style={styles.postImage} />
   );
 
-  if (loading) {
+  if (loading)
     return (
       <View style={styles.container}>
         <ActivityIndicator size="large" color="#3498db" />
       </View>
     );
-  }
 
-  if (!userData) {
+  if (!userData)
     return (
       <View style={styles.container}>
         <Text>Ingen användardata hittades</Text>
       </View>
     );
-  }
 
   return (
     <View style={styles.container}>
@@ -130,12 +109,11 @@ const ProfileScreen: React.FC = () => {
             >
               <Text style={styles.editButtonText}>Redigera profil</Text>
             </TouchableOpacity>
-
             <TouchableOpacity style={styles.followButton}>
               <Text style={styles.followButtonText}>Följ</Text>
             </TouchableOpacity>
           </View>
-          {userData.bio ? <Text style={styles.bio}>{userData.bio}</Text> : null}
+          {userData.bio && <Text style={styles.bio}>{userData.bio}</Text>}
         </View>
       </View>
 

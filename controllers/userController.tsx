@@ -18,12 +18,17 @@ export const updateProfile = async (
 
     if (profilePic && !profilePic.startsWith("http")) {
       const uriParts = profilePic.split(".");
-      const fileType = uriParts[uriParts.length - 1];
+      const fileType = uriParts[uriParts.length - 1].toLowerCase();
+      let mimeType = "image/jpeg";
+
+      if (fileType === "png") mimeType = "image/png";
+      else if (fileType === "jpg" || fileType === "jpeg")
+        mimeType = "image/jpeg";
 
       formData.append("profilePic", {
         uri: profilePic,
         name: `profile.${fileType}`,
-        type: `image/${fileType}`,
+        type: mimeType,
       } as any);
     }
 
@@ -43,7 +48,7 @@ export const updateProfile = async (
 
     return data.user;
   } catch (err) {
-    console.error("PANIC! viod updateProfile:", err);
+    console.error("Fel i updateProfile:", err);
     return null;
   }
 };
