@@ -3,6 +3,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { useContext, useEffect, useState } from "react";
 import styles from "../../styles/editProfilStyles";
+import { Platform } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { updateProfile } from "@/controllers/userController";
 
@@ -54,7 +55,13 @@ export default function EditProfile() {
     try {
       if (!token) throw new Error("Ingen token hittades. logga in igen");
 
-      const updatedUser = await updateProfile(token, name, bio, profilePic);
+      const updatedUser = await updateProfile(
+        token,
+        name,
+        bio,
+        profilePic,
+        Platform.OS
+      );
 
       if (!updatedUser) throw new Error("Misslyckades med att spara profil");
 
