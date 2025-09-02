@@ -12,17 +12,15 @@ import { useContext, useEffect, useState } from "react";
 import styles from "../../styles/editProfilStyles";
 import * as ImagePicker from "expo-image-picker";
 import { updateProfile } from "@/controllers/userController";
-
 import { UserContext } from "@/contexts/userContext";
 
 export default function EditProfile() {
   const router = useRouter();
   const { user, token, setUser } = useContext(UserContext);
-  console.log("Context i editprofile:", { user, token });
 
   const [name, setName] = useState("");
   const [bio, setBio] = useState("");
-  const [profilePic, setProfilePic] = useState<string | null>(null);
+  const [profilePic, setProfilePic] = useState<string | File | null>(null);
 
   useEffect(() => {
     if (user) {
@@ -41,7 +39,12 @@ export default function EditProfile() {
     });
 
     if (!result.canceled) {
-      setProfilePic(result.assets[0].uri);
+      const uri =
+        Platform.OS === "web"
+          ? result.assets[0].uri
+          : result.assets[0].uri.replace("file://", "");
+      setProfilePic(uri);
+      console.log("Picked image URI:", uri);
     }
   };
 
@@ -56,17 +59,46 @@ export default function EditProfile() {
       setProfilePic(result.assets[0].uri);
     }
   };
-
   const handleSave = async () => {
-    if (!token) throw new Error("Ingen token hittades. logga in igen");
+    if (!token) return;
 
     try {
-      const updatedUser = await updateProfile(token, name, bio, profilePic);
-      if (!updatedUser) throw new Error("Misslyckades med att spara profil");
+      const formData = new FormData();
+      formData.append("name", name);
+      formData.append("bio", bio);
 
-      setUser(updatedUser);
+      if (profilePic) {
+        if (typeof profilePic === "string") {
+          formData.append("file", {
+            uri: profilePic.startsWith("file://")
+              ? profilePic
+              : "file://" + profilePic,
+            type: "image/jpeg",
+            name: "profile.jpg",
+          } as any);
+        } else {
+          formData.append("file", profilePic);
+        }
+      }
+
+      const res = await fetch(
+        "http://localhost:3000/api/users/update-profile",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        }
+      );
+
+      if (!res.ok) {
+        throw new Error("Misslyckades med att spara profil");
+      }
+
+      const updatedUser = await res.json();
+      setUser(updatedUser.user);
       router.push("/(protected)/(profile)/profile");
-      console.log("Profil sparad!");
     } catch (err) {
       console.error("Fel vid sparande:", err);
     }
@@ -107,7 +139,7 @@ export default function EditProfile() {
       <TextInput
         value={bio}
         onChangeText={setBio}
-        placeholder="Skriv en bio.. (@ för att länka till konto)"
+        placeholder="Skriv en bio.."
         style={[styles.input, styles.bioInput]}
         multiline
       />
