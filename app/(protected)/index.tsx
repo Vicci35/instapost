@@ -1,16 +1,16 @@
 import { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  FlatList,
-  ActivityIndicator,
-  RefreshControl,
-  Platform,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+
+import { FlatList, SafeAreaView, ActivityIndicator, RefreshControl, TextInput, View, Text, Platform } from "react-native";
+
 import { styles } from "@/styles/protectedStyles";
-import PostCard from "../components/PostCard";
+import PostCard from "@/app/components/PostCard";
+
+
+interface Comment {
+  text: string;
+  username: string; 
+}
+
 
 interface Post {
   id: string;
@@ -19,10 +19,11 @@ interface Post {
   imageUrl: string;
   caption: string;
   likes: number;
+  comments?: Comment[];
 }
 
 interface User {
-  id: string;
+  _id: string;
   username: string;
   profileImageUrl?: string;
 }
@@ -40,7 +41,20 @@ export default function Home() {
   const BACKEND_URL =
     Platform.OS === "web"
       ? "http://localhost:3000"
-      : "http://192.168.1.140:3000"; // byt till din IP
+
+      : "http://192.168.1.140:3000";
+
+  const fetchUsers = async () => {
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/users`);
+      if (!response.ok) throw new Error("Kunde inte hämta användare");
+      const data = await response.json();
+      setAllUsers(data);
+    } catch (error) {
+      console.error("Fel vid hämtning av användare:", error);
+    }
+  };
+
 
   const fetchPosts = async () => {
     try {
@@ -56,14 +70,18 @@ export default function Home() {
     }
   };
 
-  const fetchUsers = async () => {
+
+  const handleComment = async (postId: string, comment: string) => {
     try {
-      const response = await fetch(`${BACKEND_URL}/users`);
-      if (!response.ok) throw new Error("Kunde inte hämta användare");
-      const data = await response.json();
-      setAllUsers(data);
+      await fetch(`${BACKEND_URL}/posts/${postId}/comment`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ comment, userId: "ditt_användar_ID_här", username: "ditt_användarnamn_här" }),
+      });
+      fetchPosts();
+
     } catch (error) {
-      console.error("Fel vid hämtning av användare:", error);
+      console.error("Kunde inte skicka kommentar:", error);
     }
   };
 
@@ -96,12 +114,9 @@ export default function Home() {
       );
     } catch (error) {
       console.error("Kunde inte gilla inlägg:", error);
-    }
-  };
 
-  const handleComment = (postId: string) => {
-    console.log("Kommenterat på inlägget:", postId);
-  };
+  }
+
 
   const onRefresh = () => {
     setRefreshing(true);
@@ -114,7 +129,7 @@ export default function Home() {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* NYTT: Sökfältet */}
+
       <TextInput
         placeholder="Sök användare eller caption..."
         value={searchText}
@@ -127,8 +142,7 @@ export default function Home() {
           borderRadius: 8,
         }}
       />
-      {/* Slut på det nya sökfältet */}
-
+      
       {loading ? (
         <ActivityIndicator
           size="large"
@@ -137,11 +151,12 @@ export default function Home() {
         />
       ) : (
         <>
-          {/* NY: Villkorlig rendering för att visa antingen sökresultat eller inlägg */}
+
           {searchText.length > 0 ? (
             <FlatList
               data={searchResults}
-              keyExtractor={(item) => item.username}
+              
+              keyExtractor={(item) => item._id}
               renderItem={({ item }) => (
                 <View
                   style={{
@@ -166,13 +181,16 @@ export default function Home() {
               keyExtractor={(item) => item.id}
               renderItem={({ item }) => (
                 <PostCard
+
+                  id={item.id}
                   username={item.username}
                   profileImageUrl={item.profileImageUrl}
                   imageUrl={item.imageUrl}
                   caption={item.caption}
                   likes={item.likes}
+                  comments={item.comments || []}
                   onLike={() => handleLike(item.id)}
-                  onComment={() => handleComment(item.id)}
+                  onComment={(comment) => handleComment(item.id, comment)}
                 />
               )}
               contentContainerStyle={{ padding: 12 }}

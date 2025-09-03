@@ -1,48 +1,91 @@
-import React from "react";
-import { View, Text, Image, TouchableOpacity } from "react-native";
-import { FontAwesome } from "@expo/vector-icons";
+import { useState } from "react";
+import { View, Text, Image, TouchableOpacity, TextInput, Button } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { styles } from "@/styles/postCardStyles";
 
-type PostCardProps = {
+interface Comment {
+  text: string;
+  username: string;
+}
+
+interface PostCardProps {
+  id: string;
   username: string;
   profileImageUrl?: string;
   imageUrl: string;
   caption: string;
   likes: number;
+  comments: Comment[]
   onLike: () => void;
-  onComment: () => void;
-};
+  onComment: (comment: string) => void;
+}
 
 export default function PostCard({
+  id,
   username,
   profileImageUrl,
   imageUrl,
   caption,
   likes,
+  comments,
   onLike,
   onComment,
 }: PostCardProps) {
+  const [commentText, setCommentText] = useState("");
+
+  const handleCommentSubmit = () => {
+    if (commentText.length > 0) {
+      onComment(commentText);
+      setCommentText("");
+    }
+  };
+
   return (
     <View style={styles.card}>
-      {/* Användarnamn */}
-      <Text style={styles.username}>{username}</Text>
+      <View style={styles.header}>
+        {profileImageUrl ? (
+          <Image source={{ uri: profileImageUrl }} style={styles.profileImage} />
+        ) : (
+          <View style={styles.profileImagePlaceholder} />
+        )}
+        <Text style={styles.username}>{username}</Text>
+      </View>
 
-      {/* Bild */}
-      <Image source={{ uri: imageUrl }} style={styles.image} />
-
-      {/* Bildtext */}
-      <Text style={styles.caption}>{caption}</Text>
-
-      {/* Gilla & kommentera */}
+      <Image source={{ uri: imageUrl }} style={styles.postImage} />
+      
       <View style={styles.actions}>
-        <TouchableOpacity onPress={onLike}>
-          <FontAwesome name="heart-o" size={24} color="red" />
+        <TouchableOpacity onPress={onLike} style={styles.iconButton}>
+          <Ionicons name="heart-outline" size={24} color="#000" />
         </TouchableOpacity>
-        <Text style={styles.likes}>{likes} likes</Text>
+        <TouchableOpacity style={styles.iconButton}>
+          <Ionicons name="chatbubble-outline" size={24} color="#000" />
+        </TouchableOpacity>
+      </View>
 
-        <TouchableOpacity onPress={onComment}>
-          <FontAwesome name="comment-o" size={24} color="gray" />
-        </TouchableOpacity>
+      <View style={styles.info}>
+        <Text style={styles.likes}>{likes} gilla-markeringar</Text>
+        <Text>
+          <Text style={styles.username}>{username}</Text> {caption}
+        </Text>
+      </View>
+
+       {/* Här renderas kommentarerna */}
+      {comments && comments.map((comment, index) => (
+        <View key={index} style={styles.commentContainer}>
+          <Text>
+            <Text style={styles.username}>{comment.username}</Text> {comment.text}
+          </Text>
+        </View>
+      ))}
+
+      <View style={styles.commentSection}>
+        <TextInput
+          style={styles.commentInput}
+          placeholder="Lägg till en kommentar..."
+          value={commentText}
+          onChangeText={setCommentText}
+        />
+        <Button title="Skicka" onPress={handleCommentSubmit} />
       </View>
     </View>
   );

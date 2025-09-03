@@ -3,45 +3,69 @@ import { StyleSheet } from "react-native";
 export const styles = StyleSheet.create({
   card: {
     backgroundColor: "#fff",
-    padding: 12,
-    marginBottom: 16,
-    borderRadius: 12,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 5,
-    elevation: 3,
+    borderRadius: 8,
+    marginVertical: 10,
+    borderWidth: 1,
+    borderColor: "#e0e0e0",
+  },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 10,
+  },
+  profileImage: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    marginRight: 10,
+  },
+  profileImagePlaceholder: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    marginRight: 10,
+    backgroundColor: "#ccc",
   },
   username: {
     fontWeight: "bold",
-    fontSize: 16,
-    
+    marginRight: 5,
   },
-  image: {
+  postImage: {
     width: "100%",
-    height: 250,
-    borderRadius: 8,
-    marginTop: 8,
-  },
-  caption: {
-    marginTop: 8,
-    fontSize: 14,
-    color: "#333",
+    height: 400,
   },
   actions: {
     flexDirection: "row",
-    alignItems: "center",
-    marginTop: 8,
+    padding: 10,
+  },
+  iconButton: {
+    marginRight: 10,
+  },
+  info: {
+    paddingHorizontal: 10,
+    paddingBottom: 10,
   },
   likes: {
-    marginLeft: 12,
-    fontWeight: "600",
-    fontSize: 14,
+    fontWeight: "bold",
   },
-  profileImage: {
-    width: 40,
+  commentContainer: {
+    paddingHorizontal: 10,
+    paddingBottom: 5,
+  },
+  commentSection: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 10,
+    borderTopWidth: 1,
+    borderTopColor: "#e0e0e0",
+  },
+  commentInput: {
+    flex: 1,
     height: 40,
-    borderRadius: 20,
-    marginRight: 8,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    marginRight: 10,
   },
 });
