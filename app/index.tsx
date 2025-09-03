@@ -8,7 +8,7 @@ import * as SecureStore from "expo-secure-store";
 import { styles } from "@/styles/loginStyles";
 
 export default function LoginScreen() {
-  const [token, setToken] = useState(false);
+  // const [token, setToken] = useState(false);
   const router = useRouter();
 
   // Use fetch to see if token exists or not

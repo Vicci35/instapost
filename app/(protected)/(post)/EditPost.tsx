@@ -1,23 +1,32 @@
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Text, TouchableOpacity, View, TextInput } from "react-native";
+import {
+  Text,
+  TouchableOpacity,
+  View,
+  TextInput,
+  Platform,
+} from "react-native";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import { useState, useEffect, useContext } from "react";
 import { useImage } from "@/contexts/imageContext";
 import { editStyles } from "@/styles/editPostStyle";
 import { UserContext } from "@/contexts/userContext";
+import { handleNewPost } from "@/controllers/ImageController";
 
 export default function EditPost() {
   const router = useRouter();
   const { uri } = useImage();
-  const [text, setText] = useState<string>("");
+  const [caption, setCaption] = useState<string>("");
   const { user, token, setUser, logout } = useContext(UserContext);
+  const platform = Platform.OS;
 
-  useEffect(() => {
-    console.log("input:", text);
-    console.log("name:", user.name);
-    console.log("userId:", user._id);
-  }, [text]);
+  // useEffect(() => {
+  //   console.log("input:", text);
+  //   console.log("name:", user.name);
+  //   console.log("userId:", user._id);
+  //   // Send platform as well
+  // }, [text]);
 
   return (
     <SafeAreaView>
@@ -29,13 +38,18 @@ export default function EditPost() {
         />
         <Text>Edit this post</Text>
         <TextInput
-          onChangeText={setText}
+          onChangeText={setCaption}
           style={editStyles.input}
           multiline
           maxLength={100}
         />
 
-        <TouchableOpacity style={editStyles.button}>
+        <TouchableOpacity
+          style={editStyles.button}
+          onPress={() =>
+            handleNewPost(caption, user.name, user._id, uri, platform)
+          }
+        >
           <Text style={editStyles.buttonText}>Post</Text>
         </TouchableOpacity>
 
