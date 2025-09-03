@@ -13,6 +13,7 @@ import styles from "../../styles/editProfilStyles";
 import * as ImagePicker from "expo-image-picker";
 import { UserContext } from "@/contexts/userContext";
 import { API_BASE_URL } from "../../config/api"; // <-- NY IMPORT!
+import { updateProfile } from "@/controllers/userController";
 
 export default function EditProfile() {
   const router = useRouter();
