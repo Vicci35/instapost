@@ -44,9 +44,12 @@ export default function Home() {
 
       : "http://192.168.1.140:3000";
 
+   // Använd ett riktigt ID för att testa
+ const currentUserId = "68b56dceba82f94ac40c4624";
+
   const fetchUsers = async () => {
     try {
-      const response = await fetch(`${BACKEND_URL}/users`); // FIX: Rätt sökväg
+      const response = await fetch(`${BACKEND_URL}/api/users`); 
       if (!response.ok) throw new Error("Kunde inte hämta användare");
       const data = await response.json();
       setAllUsers(data);
@@ -76,9 +79,9 @@ export default function Home() {
       await fetch(`${BACKEND_URL}/posts/${postId}/comment`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ comment, userId: "ditt_användar_ID_här", username: "ditt_användarnamn_här" }),
+        body: JSON.stringify({ comment, userId: currentUserId, username: "ditt_användarnamn_här" }),
       });
-      fetchPosts();
+      
 
     } catch (error) {
       console.error("Kunde inte skicka kommentar:", error);
@@ -101,20 +104,20 @@ export default function Home() {
     }
   }, [searchText, allUsers]);
 
-  const handleLike = async (postId: string) => {
-    try {
-      await fetch(`${BACKEND_URL}/posts/${postId}/like`, {
-        method: "POST",
-        headers: {"Content-Type": "application/json"}, 
-        body: JSON.stringify({ userId: "currentUserId" }), 
-      });
+ const handleLike = async (postId: string) => {
+ try {
+ await fetch(`${BACKEND_URL}/posts/${postId}/like`, {
+ method: "POST",
+ headers: { "Content-Type": "application/json" },
+ body: JSON.stringify({ userId: currentUserId }), // FIX: Använder nu variabeln
+ });
 
-      if (likedPosts.includes(postId)) {
-        setLikedPosts(likedPosts.filter(_id => _id !== postId));
-
-      } else {
-        setLikedPosts([...likedPosts, postId]);
-      }
+ const isCurrentlyLiked = likedPosts.includes(postId);  // Uppdatera state för lajks direkt
+ if (isCurrentlyLiked) {
+setLikedPosts(likedPosts.filter((id) => id !== postId));
+ } else {
+ setLikedPosts([...likedPosts, postId]);
+ }
 
        setPosts((prevPosts) =>
         prevPosts.map((post) => {
