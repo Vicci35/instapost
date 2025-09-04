@@ -157,13 +157,16 @@ export default function EditProfile() {
       console.log("Sending request to server...");
 
       // <-- ENDA ÄNDRINGEN HÄR: Använd API_BASE_URL istället för hårdkodad URL
-      const res = await fetch(`${API_BASE_URL}/api/users/update-profile`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: formData,
-      });
+      const res = await fetch(
+        `${API_BASE_URL}/api/users/update/update-profile`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        }
+      );
 
       console.log("Response status:", res.status);
 
