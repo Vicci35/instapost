@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import {
   View,
   Text,
@@ -7,9 +7,9 @@ import {
   TouchableOpacity,
   ActivityIndicator,
 } from "react-native";
-import { useLocalSearchParams } from "expo-router";
-import styles from "../../styles/ProfileScreenStyles";
+import styles from "../../../styles/ProfileScreenStyles";
 import { getUserProfile } from "@/controllers/profileController";
+import { UserContext } from "@/contexts/userContext";
 
 type Post = {
   _id: string;
@@ -26,24 +26,34 @@ type User = {
   posts: Post[];
 };
 
-const UserProfileScreen: React.FC = () => {
-  const { id } = useLocalSearchParams<{ id: string }>();
-  const [userData, setUserData] = useState<User | null>();
+type UserProfileScreenProps = {
+  userId: string;
+};
+
+const UserProfileScreen: React.FC<UserProfileScreenProps> = ({ userId }) => {
+  const [userData, setUserData] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const { token } = useContext(UserContext);
 
   useEffect(() => {
     const fetchUser = async () => {
+      if (!token) {
+        setLoading(false);
+        return;
+      }
+
       try {
-        const data = await getUserProfile(id);
+        const data = await getUserProfile(userId, token);
         setUserData(data);
       } catch (err) {
-        console.error(err);
+        console.error("Fel vid hämtning av användarprofil:", err);
       } finally {
         setLoading(false);
       }
     };
+
     fetchUser();
-  }, [id]);
+  }, [userId, token]);
 
   if (loading) {
     return (
@@ -68,7 +78,7 @@ const UserProfileScreen: React.FC = () => {
           source={
             userData.profileImage
               ? { uri: userData.profileImage }
-              : require("../../assets/images/defaultBildProfil.jpg")
+              : require("../../../assets/images/defaultBildProfil.jpg")
           }
           style={styles.profilePic}
         />

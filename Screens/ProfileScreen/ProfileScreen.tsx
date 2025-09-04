@@ -149,9 +149,6 @@ const ProfileScreen: React.FC = () => {
             >
               <Text style={styles.editButtonText}>Redigera profil</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.followButton}>
-              <Text style={styles.followButtonText}>Följ</Text>
-            </TouchableOpacity>
           </View>
           {userData.bio && <Text style={styles.bio}>{userData.bio}</Text>}
         </View>
