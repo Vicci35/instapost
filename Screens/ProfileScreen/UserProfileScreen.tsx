@@ -6,8 +6,10 @@ import {
   FlatList,
   TouchableOpacity,
   ActivityIndicator,
+  Platform,
 } from "react-native";
-import styles from "../../../styles/ProfileScreenStyles";
+import { SafeAreaView } from "react-native-safe-area-context";
+import styles from "../../styles/UserProfileScreenStyles"; // egen stylingfil
 import { getUserProfile } from "@/controllers/profileController";
 import { UserContext } from "@/contexts/userContext";
 
@@ -16,13 +18,17 @@ type Post = {
   imageUrl: string;
 };
 
+type Follower = {
+  _id: string;
+};
+
 type User = {
   _id: string;
   name: string;
   profileImage?: string;
   bio?: string;
-  followers: string[];
-  following: string[];
+  followers: Follower[];
+  following: Follower[];
   posts: Post[];
 };
 
@@ -30,10 +36,16 @@ type UserProfileScreenProps = {
   userId: string;
 };
 
+const BACKEND_URL =
+  Platform.OS === "web"
+    ? "http://localhost:3000"
+    : "http://192.168.68.105:3000";
+
 const UserProfileScreen: React.FC<UserProfileScreenProps> = ({ userId }) => {
+  const { token, user } = useContext(UserContext);
   const [userData, setUserData] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const { token } = useContext(UserContext);
+  const [isFollowing, setIsFollowing] = useState(false);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -41,10 +53,13 @@ const UserProfileScreen: React.FC<UserProfileScreenProps> = ({ userId }) => {
         setLoading(false);
         return;
       }
-
       try {
-        const data = await getUserProfile(userId, token);
+        const data: User = await getUserProfile(userId, token);
         setUserData(data);
+
+        if (user && data?.followers?.some((f) => f._id === user._id)) {
+          setIsFollowing(true);
+        }
       } catch (err) {
         console.error("Fel vid hämtning av användarprofil:", err);
       } finally {
@@ -54,6 +69,39 @@ const UserProfileScreen: React.FC<UserProfileScreenProps> = ({ userId }) => {
 
     fetchUser();
   }, [userId, token]);
+
+  // Följ / Avfölj
+  const toggleFollow = async () => {
+    if (!token || !userData) return;
+
+    const url = `${BACKEND_URL}/api/users/follow/${userData._id}`;
+
+    try {
+      const res = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) throw new Error("Något gick fel vid följning");
+
+      setIsFollowing(!isFollowing);
+      setUserData((prev) =>
+        prev
+          ? {
+              ...prev,
+              followers: isFollowing
+                ? prev.followers.filter((f) => f._id !== user?._id)
+                : [...prev.followers, { _id: user?._id }],
+            }
+          : prev
+      );
+    } catch (err) {
+      console.error("Fel vid följa/avfölja:", err);
+    }
+  };
 
   if (loading) {
     return (
@@ -72,13 +120,13 @@ const UserProfileScreen: React.FC<UserProfileScreenProps> = ({ userId }) => {
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Image
           source={
             userData.profileImage
               ? { uri: userData.profileImage }
-              : require("../../../assets/images/defaultBildProfil.jpg")
+              : require("../../assets/images/defaultBildProfil.jpg")
           }
           style={styles.profilePic}
         />
@@ -98,8 +146,10 @@ const UserProfileScreen: React.FC<UserProfileScreenProps> = ({ userId }) => {
               <Text style={styles.statLabel}>Följer</Text>
             </View>
           </View>
-          <TouchableOpacity style={styles.followButton}>
-            <Text style={styles.followButtonText}>Följ</Text>
+          <TouchableOpacity style={styles.followButton} onPress={toggleFollow}>
+            <Text style={styles.followButtonText}>
+              {isFollowing ? "Avfölj" : "Följ"}
+            </Text>
           </TouchableOpacity>
           {userData.bio && <Text style={styles.bio}>{userData.bio}</Text>}
         </View>
@@ -114,7 +164,7 @@ const UserProfileScreen: React.FC<UserProfileScreenProps> = ({ userId }) => {
         )}
         style={styles.postsContainer}
       />
-    </View>
+    </SafeAreaView>
   );
 };
 

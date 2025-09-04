@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef, useContext } from "react";
 
 import {
@@ -113,7 +112,6 @@ export default function Home() {
           userId: currentUserId,
 
           username: user?.username || "okänd_användare",
-
         }),
       });
       
@@ -191,7 +189,7 @@ const handleLike = async (postId: string) => {
   // Funktion för att navigera till användarprofil
   const navigateToUserProfile = (userId: string) => {
     // Använd replace istället för push för att undvika ny tab
-    router.navigate(`/(protected)/userProfile/${userId}`);
+    router.push(`/(protected)/(userProfile)/${userId}`);
   };
 
   if (loading) {
@@ -225,32 +223,26 @@ const handleLike = async (postId: string) => {
             data={searchResults}
             keyExtractor={(item) => item._id}
             renderItem={({ item }) => (
-
               <TouchableOpacity
                 onPress={() => navigateToUserProfile(item._id)}
-
                 style={{
                   padding: 10,
                   borderBottomWidth: 1,
                   borderBottomColor: "#eee",
                 }}
               >
-
                 <Text style={{ fontWeight: "bold" }}>
                   {item.name || item.username}
                 </Text>
                 <Text>Följ</Text>
               </TouchableOpacity>
-
             )}
             contentContainerStyle={{ padding: 12 }}
             ListHeaderComponent={
               <Text
                 style={{ fontWeight: "bold", fontSize: 16, marginBottom: 5 }}
               >
-
                 Sökresultat ({searchResults.length}):
-
               </Text>
             }
           />

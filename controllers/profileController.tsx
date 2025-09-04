@@ -1,12 +1,10 @@
 // controllers/profileController.ts
 import { Platform } from "react-native";
 
-
 const BACKEND_URL =
   Platform.OS === "web"
     ? "http://localhost:3000"
     : "http://192.168.68.105:3000";
-
 
 export const getProfile = async (token: string) => {
   try {
