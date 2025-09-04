@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef, useContext } from "react";
 
 import {
@@ -17,7 +16,6 @@ import PostCard from "@/app/components/PostCard";
 
 import { useRouter } from "expo-router";
 import { UserContext } from "@/contexts/userContext";
-
 
 interface Comment {
   text: string;
@@ -110,7 +108,6 @@ export default function Home() {
           userId: currentUserId,
 
           username: user?.username || "okänd_användare",
-
         }),
       });
     } catch (error) {
@@ -185,7 +182,7 @@ export default function Home() {
   // Funktion för att navigera till användarprofil
   const navigateToUserProfile = (userId: string) => {
     // Använd replace istället för push för att undvika ny tab
-    router.replace(`/(protected)/userProfile/${userId}`);
+    router.push(`/(protected)/(userProfile)/${userId}`);
   };
 
   if (loading) {
@@ -218,32 +215,26 @@ export default function Home() {
             data={searchResults}
             keyExtractor={(item) => item._id}
             renderItem={({ item }) => (
-
               <TouchableOpacity
                 onPress={() => navigateToUserProfile(item._id)}
-
                 style={{
                   padding: 10,
                   borderBottomWidth: 1,
                   borderBottomColor: "#eee",
                 }}
               >
-
                 <Text style={{ fontWeight: "bold" }}>
                   {item.name || item.username}
                 </Text>
                 <Text>Följ</Text>
               </TouchableOpacity>
-
             )}
             contentContainerStyle={{ padding: 12 }}
             ListHeaderComponent={
               <Text
                 style={{ fontWeight: "bold", fontSize: 16, marginBottom: 5 }}
               >
-
                 Sökresultat ({searchResults.length}):
-
               </Text>
             }
           />

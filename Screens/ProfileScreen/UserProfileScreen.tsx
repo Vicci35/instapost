@@ -7,9 +7,10 @@ import {
   TouchableOpacity,
   ActivityIndicator,
 } from "react-native";
-import styles from "../../../styles/ProfileScreenStyles";
+import styles from "../../styles/UserProfileScreenStyles";
 import { getUserProfile } from "@/controllers/profileController";
 import { UserContext } from "@/contexts/userContext";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 type Post = {
   _id: string;
@@ -72,13 +73,13 @@ const UserProfileScreen: React.FC<UserProfileScreenProps> = ({ userId }) => {
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Image
           source={
             userData.profileImage
               ? { uri: userData.profileImage }
-              : require("../../../assets/images/defaultBildProfil.jpg")
+              : require("../../assets/images/defaultBildProfil.jpg")
           }
           style={styles.profilePic}
         />
@@ -114,7 +115,7 @@ const UserProfileScreen: React.FC<UserProfileScreenProps> = ({ userId }) => {
         )}
         style={styles.postsContainer}
       />
-    </View>
+    </SafeAreaView>
   );
 };
 
