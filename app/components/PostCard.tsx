@@ -18,6 +18,7 @@ interface PostCardProps {
   comments: Comment[]
   onLike: () => void;
   onComment: (comment: string) => void;
+  isLiked: boolean; 
 }
 
 export default function PostCard({
@@ -30,6 +31,7 @@ export default function PostCard({
   comments,
   onLike,
   onComment,
+  isLiked, 
 }: PostCardProps) {
   const [commentText, setCommentText] = useState("");
 
@@ -55,7 +57,11 @@ export default function PostCard({
       
       <View style={styles.actions}>
         <TouchableOpacity onPress={onLike} style={styles.iconButton}>
+          {isLiked ? (
+            <Ionicons name= "heart" size={24} color="red"/>
+          ) : ( 
           <Ionicons name="heart-outline" size={24} color="#000" />
+          )}
         </TouchableOpacity>
         <TouchableOpacity style={styles.iconButton}>
           <Ionicons name="chatbubble-outline" size={24} color="#000" />
