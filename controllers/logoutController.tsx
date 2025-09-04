@@ -12,6 +12,7 @@ export const handleLogout = async (
         method: "POST",
         credentials: "include",
       });
+      localStorage.removeItem("id");
       if (!response.ok) {
         console.error("Logout failed", await response.text());
       }
