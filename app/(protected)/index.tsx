@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useContext, useEffect, useRef } from "react";
+import { UserContext } from "@/contexts/userContext";
 import { FlatList, SafeAreaView, ActivityIndicator, RefreshControl, TextInput, View, Text, Platform, TouchableOpacity } from "react-native";
 import { styles } from "@/styles/protectedStyles";
 import PostCard from "@/app/components/PostCard";
@@ -37,6 +38,7 @@ export default function Home() {
   const [searchText, setSearchText] = useState("");
   const [searchResults, setSearchResults] = useState<User[]>([]);
   const searchInputRef = useRef(null);
+  const { user } = useContext(UserContext);
 
   const BACKEND_URL =
     Platform.OS === "web"
@@ -44,8 +46,9 @@ export default function Home() {
 
       : "http://192.168.1.140:3000";
 
-   // Använd ett riktigt ID för att testa
- const currentUserId = "68b56dceba82f94ac40c4624";
+   
+ const currentUserId = user?._id;
+ const currentUsername = user?.username;
 
   const fetchUsers = async () => {
     try {
@@ -79,7 +82,7 @@ export default function Home() {
       await fetch(`${BACKEND_URL}/posts/${postId}/comment`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ comment, userId: currentUserId, username: "ditt_användarnamn_här" }),
+        body: JSON.stringify({ comment, userId: currentUserId, username: currentUsername }),
       });
       
 
@@ -104,27 +107,32 @@ export default function Home() {
     }
   }, [searchText, allUsers]);
 
- const handleLike = async (postId: string) => {
- try {
- await fetch(`${BACKEND_URL}/posts/${postId}/like`, {
- method: "POST",
- headers: { "Content-Type": "application/json" },
- body: JSON.stringify({ userId: currentUserId }), 
- });
+const handleLike = async (postId: string) => {
+    if (!currentUserId) {
+        console.error("Användaren är inte inloggad.");
+        return;
+    }
+    try {
+      await fetch(`${BACKEND_URL}/posts/${postId}/like`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: currentUserId }),
+      });
 
- const isCurrentlyLiked = likedPosts.includes(postId);  
- if (isCurrentlyLiked) {
-setLikedPosts(likedPosts.filter((id) => id !== postId));
- } else {
- setLikedPosts([...likedPosts, postId]);
- }
+      const isCurrentlyLiked = likedPosts.includes(postId);
 
-       setPosts((prevPosts) =>
+      if (isCurrentlyLiked) {
+        setLikedPosts(likedPosts.filter((id) => id !== postId));
+      } else {
+        setLikedPosts([...likedPosts, postId]);
+      }
+
+        setPosts((prevPosts) =>
         prevPosts.map((post) => {
           if (post._id === postId) {
             return {
               ...post,
-              likes: likedPosts.includes(postId) ? post.likes - 1 : post.likes + 1,
+              likes: isCurrentlyLiked ? post.likes - 1 : post.likes + 1,
             };
           }
           return post;
