@@ -1,8 +1,22 @@
-import { useState, useContext, useEffect, useRef } from "react";
-import { UserContext } from "@/contexts/userContext";
-import { FlatList, SafeAreaView, ActivityIndicator, RefreshControl, TextInput, View, Text, Platform, TouchableOpacity } from "react-native";
+
+import { useState, useEffect, useRef, useContext } from "react";
+
+import {
+  FlatList,
+  SafeAreaView,
+  ActivityIndicator,
+  RefreshControl,
+  TextInput,
+  View,
+  Text,
+  Platform,
+  TouchableOpacity,
+} from "react-native";
 import { styles } from "@/styles/protectedStyles";
 import PostCard from "@/app/components/PostCard";
+
+import { useRouter } from "expo-router";
+import { UserContext } from "@/contexts/userContext";
 
 
 interface Comment {
@@ -24,10 +38,12 @@ interface Post {
 interface User {
   _id: string;
   username: string;
+  name: string; // Lägg till name eftersom backend skickar detta
   profileImageUrl?: string;
 }
 
 export default function Home() {
+  const router = useRouter();
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -38,23 +54,32 @@ export default function Home() {
   const [searchText, setSearchText] = useState("");
   const [searchResults, setSearchResults] = useState<User[]>([]);
   const searchInputRef = useRef(null);
-  const { user } = useContext(UserContext);
+  const { user, token } = useContext(UserContext);
 
   const BACKEND_URL =
     Platform.OS === "web"
       ? "http://localhost:3000"
+      : "http://192.168.68.105:3000";
 
-      : "http://192.168.1.140:3000";
-
-   
- const currentUserId = user?._id;
- const currentUsername = user?.username;
+  const currentUserId = user?._id;
 
   const fetchUsers = async () => {
     try {
-      const response = await fetch(`${BACKEND_URL}/api/users`); 
-      if (!response.ok) throw new Error("Kunde inte hämta användare");
+      // Skicka med Authorization header
+      const response = await fetch(`${BACKEND_URL}/api/users`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
       const data = await response.json();
+      console.log("Hämtade användare:", data); // Debug log
+
       setAllUsers(data);
     } catch (error) {
       console.error("Fel vid hämtning av användare:", error);
@@ -78,11 +103,18 @@ export default function Home() {
 
 
   const handleComment = async (postId: string, comment: string) => {
+    if (!currentUserId) return;
     try {
       await fetch(`${BACKEND_URL}/posts/${postId}/comment`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ comment, userId: currentUserId, username: currentUsername }),
+        body: JSON.stringify({
+          comment,
+          userId: currentUserId,
+
+          username: user?.username || "okänd_användare",
+
+        }),
       });
       
 
@@ -92,15 +124,23 @@ export default function Home() {
   };
 
   useEffect(() => {
-    fetchPosts();
-    fetchUsers();
-  }, []);
+    if (token) {
+      // Vänta tills vi har token
+      fetchPosts();
+      fetchUsers();
+    }
+  }, [token]);
 
   useEffect(() => {
     if (searchText.length > 0) {
-      const filteredUsers = allUsers.filter((user) =>
-        user.username.toLowerCase().includes(searchText.toLowerCase())
-      );
+      const filteredUsers = allUsers
+        .filter((user) => user && (user.username || user.name))
+        .filter(
+          (user) =>
+            user.username?.toLowerCase().includes(searchText.toLowerCase()) ||
+            user.name?.toLowerCase().includes(searchText.toLowerCase())
+        );
+      console.log("Filtrerade användare:", filteredUsers); // Debug log
       setSearchResults(filteredUsers);
     } else {
       setSearchResults([]);
@@ -148,7 +188,19 @@ const handleLike = async (postId: string) => {
     fetchPosts();
   };
 
-  const filteredPosts = posts;
+  // Funktion för att navigera till användarprofil
+  const navigateToUserProfile = (userId: string) => {
+    // Använd replace istället för push för att undvika ny tab
+    router.navigate(`/(protected)/userProfile/${userId}`);
+  };
+
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <ActivityIndicator size="large" color="#000" />
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -167,7 +219,43 @@ const handleLike = async (postId: string) => {
         }}
       />
 
-      
+      {searchText.length > 0 && (
+        <View style={{ marginBottom: 10 }}>
+          <FlatList
+            data={searchResults}
+            keyExtractor={(item) => item._id}
+            renderItem={({ item }) => (
+
+              <TouchableOpacity
+                onPress={() => navigateToUserProfile(item._id)}
+
+                style={{
+                  padding: 10,
+                  borderBottomWidth: 1,
+                  borderBottomColor: "#eee",
+                }}
+              >
+
+                <Text style={{ fontWeight: "bold" }}>
+                  {item.name || item.username}
+                </Text>
+                <Text>Följ</Text>
+              </TouchableOpacity>
+
+            )}
+            contentContainerStyle={{ padding: 12 }}
+            ListHeaderComponent={
+              <Text
+                style={{ fontWeight: "bold", fontSize: 16, marginBottom: 5 }}
+              >
+
+                Sökresultat ({searchResults.length}):
+
+              </Text>
+            }
+          />
+        </View>
+      )}
 
       {searchText.length > 0 && (
       <View style={{ marginBottom: 10 }}>
