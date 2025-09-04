@@ -71,13 +71,13 @@ export default StyleSheet.create({
     fontWeight: "500",
     color: "blue",
   },
-  postsContainer: {
-    flex: 1,
-  },
-  postImage: {
-    width: "33%",
-    height: 120,
-  },
+  // postsContainer: {
+  //   flex: 1,
+  // },
+  // postImage: {
+  //   width: "33%",
+  //   height: 120,
+  // },
   button: {
     color: "white",
     backgroundColor: "#1DA1F2",
@@ -98,5 +98,62 @@ export default StyleSheet.create({
     marginTop: 8,
     marginLeft: 16,
     marginRight: 16,
+  },
+  postsContainer: {
+    flex: 1,
+  },
+  postWrapper: {
+    flex: 1 / 3, // Delar upp raden i tre kolumner
+    aspectRatio: 1, // Gör rutan kvadratisk
+    margin: 1, // Lite mellanrum mellan bilderna
+  },
+  postImage: {
+    width: "100%",
+    height: "100%",
+  },
+  modalOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 10,
+  },
+
+  modalBackground: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0,0,0,0.5)",
+  },
+
+  modalContent: {
+    width: "90%",
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    padding: 10,
+    alignItems: "center",
+  },
+
+  modalImage: {
+    width: "100%",
+    height: 300,
+    borderRadius: 10,
+  },
+
+  modalCaption: {
+    fontSize: 16,
+    textAlign: "center",
+  },
+  actions: {
+    flexDirection: "row",
+    padding: 10,
+  },
+  iconButton: {
+    marginRight: 10,
   },
 });
