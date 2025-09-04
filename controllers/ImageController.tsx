@@ -7,14 +7,26 @@ export const handleNewPost = async (
 ) => {
   let imageBase64: string | null = null;
 
+  // if (uri && platform === "web") {
+  //   const response = await fetch(uri);
+  //   const blob = await response.blob();
+  //   const arrayBuffer = await blob.arrayBuffer();
+  //   const base64String = btoa(
+  //     String.fromCharCode(...new Uint8Array(arrayBuffer))
+  //   );
+  //   imageBase64 = `data:${blob.type};base64,${base64String}`;
+  // }
+
   if (uri && platform === "web") {
     const response = await fetch(uri);
     const blob = await response.blob();
-    const arrayBuffer = await blob.arrayBuffer();
-    const base64String = btoa(
-      String.fromCharCode(...new Uint8Array(arrayBuffer))
-    );
-    imageBase64 = `data:${blob.type};base64,${base64String}`;
+
+    const reader = new FileReader();
+    imageBase64 = await new Promise((resolve, reject) => {
+      reader.onloadend = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob); // Gör om till base64 direkt
+    });
   }
 
   const URL =
