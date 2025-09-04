@@ -48,7 +48,10 @@ export default function PostCard({
         {profileImageUrl ? (
           <Image source={{ uri: profileImageUrl }} style={styles.profileImage} />
         ) : (
-          <View style={styles.profileImagePlaceholder} />
+           <Image
+           source={require("../../assets/images/defaultBildProfil.jpg")}
+           style={styles.profileImage}
+           />
         )}
         <Text style={styles.username}>{username}</Text>
       </View>
