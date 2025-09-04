@@ -109,10 +109,10 @@ export default function Home() {
  await fetch(`${BACKEND_URL}/posts/${postId}/like`, {
  method: "POST",
  headers: { "Content-Type": "application/json" },
- body: JSON.stringify({ userId: currentUserId }), // FIX: Använder nu variabeln
+ body: JSON.stringify({ userId: currentUserId }), 
  });
 
- const isCurrentlyLiked = likedPosts.includes(postId);  // Uppdatera state för lajks direkt
+ const isCurrentlyLiked = likedPosts.includes(postId);  
  if (isCurrentlyLiked) {
 setLikedPosts(likedPosts.filter((id) => id !== postId));
  } else {
