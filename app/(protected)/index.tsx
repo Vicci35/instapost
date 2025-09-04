@@ -1,14 +1,22 @@
 import { useState, useEffect, useRef } from "react";
-import { FlatList, SafeAreaView, ActivityIndicator, RefreshControl, TextInput, View, Text, Platform, TouchableOpacity } from "react-native";
+import {
+  FlatList,
+  SafeAreaView,
+  ActivityIndicator,
+  RefreshControl,
+  TextInput,
+  View,
+  Text,
+  Platform,
+  TouchableOpacity,
+} from "react-native";
 import { styles } from "@/styles/protectedStyles";
 import PostCard from "@/app/components/PostCard";
-
 
 interface Comment {
   text: string;
   username: string;
 }
-
 
 interface Post {
   _id: string;
@@ -31,9 +39,8 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
-
   const [allUsers, setAllUsers] = useState<User[]>([]);
-  const [likedPosts, setLikedPosts] = useState<string[]>([]); 
+  const [likedPosts, setLikedPosts] = useState<string[]>([]);
   const [searchText, setSearchText] = useState("");
   const [searchResults, setSearchResults] = useState<User[]>([]);
   const searchInputRef = useRef(null);
@@ -41,15 +48,14 @@ export default function Home() {
   const BACKEND_URL =
     Platform.OS === "web"
       ? "http://localhost:3000"
-
       : "http://192.168.1.140:3000";
 
-   // Använd ett riktigt ID för att testa
- const currentUserId = "68b56dceba82f94ac40c4624";
+  // Använd ett riktigt ID för att testa
+  const currentUserId = "68b56dceba82f94ac40c4624";
 
   const fetchUsers = async () => {
     try {
-      const response = await fetch(`${BACKEND_URL}/api/users`); 
+      const response = await fetch(`${BACKEND_URL}/api/users`);
       if (!response.ok) throw new Error("Kunde inte hämta användare");
       const data = await response.json();
       setAllUsers(data);
@@ -57,7 +63,6 @@ export default function Home() {
       console.error("Fel vid hämtning av användare:", error);
     }
   };
-
 
   const fetchPosts = async () => {
     try {
@@ -73,16 +78,17 @@ export default function Home() {
     }
   };
 
-
   const handleComment = async (postId: string, comment: string) => {
     try {
       await fetch(`${BACKEND_URL}/posts/${postId}/comment`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ comment, userId: currentUserId, username: "ditt_användarnamn_här" }),
+        body: JSON.stringify({
+          comment,
+          userId: currentUserId,
+          username: "ditt_användarnamn_här",
+        }),
       });
-      
-
     } catch (error) {
       console.error("Kunde inte skicka kommentar:", error);
     }
@@ -104,27 +110,29 @@ export default function Home() {
     }
   }, [searchText, allUsers]);
 
- const handleLike = async (postId: string) => {
- try {
- await fetch(`${BACKEND_URL}/posts/${postId}/like`, {
- method: "POST",
- headers: { "Content-Type": "application/json" },
- body: JSON.stringify({ userId: currentUserId }), // FIX: Använder nu variabeln
- });
+  const handleLike = async (postId: string) => {
+    try {
+      await fetch(`${BACKEND_URL}/posts/${postId}/like`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: currentUserId }), // FIX: Använder nu variabeln
+      });
 
- const isCurrentlyLiked = likedPosts.includes(postId);  // Uppdatera state för lajks direkt
- if (isCurrentlyLiked) {
-setLikedPosts(likedPosts.filter((id) => id !== postId));
- } else {
- setLikedPosts([...likedPosts, postId]);
- }
+      const isCurrentlyLiked = likedPosts.includes(postId); // Uppdatera state för lajks direkt
+      if (isCurrentlyLiked) {
+        setLikedPosts(likedPosts.filter((id) => id !== postId));
+      } else {
+        setLikedPosts([...likedPosts, postId]);
+      }
 
-       setPosts((prevPosts) =>
+      setPosts((prevPosts) =>
         prevPosts.map((post) => {
           if (post._id === postId) {
             return {
               ...post,
-              likes: likedPosts.includes(postId) ? post.likes - 1 : post.likes + 1,
+              likes: likedPosts.includes(postId)
+                ? post.likes - 1
+                : post.likes + 1,
             };
           }
           return post;
@@ -144,7 +152,6 @@ setLikedPosts(likedPosts.filter((id) => id !== postId));
 
   return (
     <SafeAreaView style={styles.container}>
-
       <TextInput
         ref={searchInputRef}
         placeholder="Sök användare..."
@@ -159,58 +166,65 @@ setLikedPosts(likedPosts.filter((id) => id !== postId));
         }}
       />
 
-      
-
       {searchText.length > 0 && (
-      <View style={{ marginBottom: 10 }}>
+        <View style={{ marginBottom: 10 }}>
+          <FlatList
+            data={searchResults}
+            keyExtractor={(item) => item._id}
+            renderItem={({ item }) => (
+              <View
+                style={{
+                  padding: 10,
+                  borderBottomWidth: 1,
+                  borderBottomColor: "#eee",
+                }}
+              >
+                <Text style={{ fontWeight: "bold" }}>{item.username}</Text>
+                <Text>Följ</Text>
+              </View>
+            )}
+            contentContainerStyle={{ padding: 12 }}
+            ListHeaderComponent={
+              <Text
+                style={{ fontWeight: "bold", fontSize: 16, marginBottom: 5 }}
+              >
+                Sökresultat:
+              </Text>
+            }
+          />
+        </View>
+      )}
+
+      {loading ? (
+        <ActivityIndicator
+          size="large"
+          color="#000"
+          style={{ marginTop: 20 }}
+        />
+      ) : (
         <FlatList
-          data={searchResults}
+          data={posts}
           keyExtractor={(item) => item._id}
           renderItem={({ item }) => (
-            <View
-              style={{
-                padding: 10,
-                borderBottomWidth: 1,
-                borderBottomColor: "#eee",
-              }}
-            >
-              <Text style={{ fontWeight: "bold" }}>{item.username}</Text>
-              <Text>Följ</Text>
-            </View>
+            <PostCard
+              id={item._id}
+              username={item.username}
+              profileImageUrl={item.profileImageUrl}
+              imageUrl={item.imageUrl}
+              caption={item.caption}
+              likes={item.likes}
+              comments={item.comments || []}
+              onLike={() => handleLike(item._id)}
+              onComment={(comment) => handleComment(item._id, comment)}
+              isLiked={likedPosts.includes(item._id)}
+            />
           )}
           contentContainerStyle={{ padding: 12 }}
-          ListHeaderComponent={
-            <Text style={{ fontWeight: "bold", fontSize: 16, marginBottom: 5 }}>Sökresultat:</Text>
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
           }
         />
-      </View>
-    )}
-
-    {loading ? (
-      <ActivityIndicator size="large" color="#000" style={{ marginTop: 20 }} />
-    ) : (
-      <FlatList
-        data={posts}
-        keyExtractor={(item) => item._id}
-        renderItem={({ item }) => (
-          <PostCard
-            id={item._id}
-            username={item.username}
-            profileImageUrl={item.profileImageUrl}
-            imageUrl={item.imageUrl}
-            caption={item.caption}
-            likes={item.likes}
-            comments={item.comments || []}
-            onLike={() => handleLike(item._id)}
-            onComment={(comment) => handleComment(item._id, comment)}
-            isLiked= {likedPosts.includes(item._id)}
-          />
-        )}
-        contentContainerStyle={{ padding: 12 }}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-      />
-    )}
-  </SafeAreaView>
-  )}
+      )}
+    </SafeAreaView>
+  );
+}
