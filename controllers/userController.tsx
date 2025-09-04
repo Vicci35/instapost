@@ -5,7 +5,7 @@ export const updateProfile = async (
   token: string,
   name: string,
   bio: string,
-  profilePic: string | null,
+  profilePic: string | File | null,
   platform: string
 ) => {
   const URL =

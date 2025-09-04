@@ -1,4 +1,6 @@
+
 import { useState, useEffect, useRef, useContext } from "react";
+
 import {
   FlatList,
   SafeAreaView,
@@ -12,8 +14,10 @@ import {
 } from "react-native";
 import { styles } from "@/styles/protectedStyles";
 import PostCard from "@/app/components/PostCard";
+
 import { useRouter } from "expo-router";
 import { UserContext } from "@/contexts/userContext";
+
 
 interface Comment {
   text: string;
@@ -104,7 +108,9 @@ export default function Home() {
         body: JSON.stringify({
           comment,
           userId: currentUserId,
+
           username: user?.username || "okänd_användare",
+
         }),
       });
     } catch (error) {
@@ -141,10 +147,12 @@ export default function Home() {
       await fetch(`${BACKEND_URL}/posts/${postId}/like`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+
         body: JSON.stringify({ userId: currentUserId }),
       });
 
       const isCurrentlyLiked = likedPosts.includes(postId);
+
       if (isCurrentlyLiked) {
         setLikedPosts(likedPosts.filter((id) => id !== postId));
       } else {
@@ -210,26 +218,32 @@ export default function Home() {
             data={searchResults}
             keyExtractor={(item) => item._id}
             renderItem={({ item }) => (
+
               <TouchableOpacity
                 onPress={() => navigateToUserProfile(item._id)}
+
                 style={{
                   padding: 10,
                   borderBottomWidth: 1,
                   borderBottomColor: "#eee",
                 }}
               >
+
                 <Text style={{ fontWeight: "bold" }}>
                   {item.name || item.username}
                 </Text>
                 <Text>Följ</Text>
               </TouchableOpacity>
+
             )}
             contentContainerStyle={{ padding: 12 }}
             ListHeaderComponent={
               <Text
                 style={{ fontWeight: "bold", fontSize: 16, marginBottom: 5 }}
               >
+
                 Sökresultat ({searchResults.length}):
+
               </Text>
             }
           />
