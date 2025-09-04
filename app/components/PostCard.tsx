@@ -11,12 +11,13 @@ interface Comment {
 interface PostCardProps {
   id: string;
   username: string;
+  userID: string;
   profileImageUrl?: string;
   imageUrl: string;
   caption: string;
   likes: number;
   comments: Comment[]
-  onLike: () => void;
+  onLike: (id: string, userId: string) => void;
   onComment: (comment: string) => void;
   isLiked: boolean; 
 }
@@ -29,6 +30,7 @@ export default function PostCard({
   caption,
   likes,
   comments,
+  userID, 
   onLike,
   onComment,
   isLiked, 
@@ -59,7 +61,7 @@ export default function PostCard({
       <Image source={{ uri: imageUrl }} style={styles.postImage} />
       
       <View style={styles.actions}>
-        <TouchableOpacity onPress={onLike} style={styles.iconButton}>
+        <TouchableOpacity onPress={() => onLike(id, userID)} style={styles.iconButton}>
           {isLiked ? (
             <Ionicons name= "heart" size={24} color="red"/>
           ) : ( 
