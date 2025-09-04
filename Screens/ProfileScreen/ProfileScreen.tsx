@@ -14,6 +14,7 @@ import { getProfile } from "@/controllers/profileController";
 import styles from "../../styles/ProfileScreenStyles";
 import { handleLogout } from "@/controllers/logoutController";
 import { UserContext } from "@/contexts/userContext";
+import { refreshUserData } from "@/controllers/refreshController";
 
 type Post = {
   _id: string;
@@ -47,6 +48,7 @@ const ProfileScreen: React.FC = () => {
           if (freshUser) {
             setUserData(freshUser);
             setUser(freshUser);
+            localStorage.setItem("id", freshUser._id);
           }
         } catch (err) {
           console.error(err);
@@ -57,6 +59,28 @@ const ProfileScreen: React.FC = () => {
       fetchUserData();
     }, [token])
   );
+
+  useEffect(() => {
+    const refreshUser = async () => {
+      const platform = "web"; // vi kör bara web nu
+      const userID = localStorage.getItem("id");
+      if (!userID) return;
+
+      try {
+        const data = await refreshUserData(platform, userID);
+        console.log("Refreshed user:", data);
+        if (data) {
+          setUserData(data);
+          setUser(data);
+          setLoading(false);
+        }
+      } catch (err) {
+        console.error("Refresh failed:", err);
+      }
+    };
+
+    if (!user) refreshUser();
+  }, [user]);
 
   const renderPost: ListRenderItem<Post> = ({ item }) => (
     <Image source={{ uri: item.imageUrl }} style={styles.postImage} />
