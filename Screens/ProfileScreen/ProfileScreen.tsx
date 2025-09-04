@@ -15,6 +15,7 @@ import styles from "../../styles/ProfileScreenStyles";
 import { handleLogout } from "@/controllers/logoutController";
 import { UserContext } from "@/contexts/userContext";
 import { refreshUserData } from "@/controllers/refreshController";
+import { Ionicons } from "@expo/vector-icons";
 
 type Post = {
   _id: string;
@@ -36,6 +37,7 @@ const ProfileScreen: React.FC = () => {
   const { user, token, setUser, logout } = useContext(UserContext);
   const [userData, setUserData] = useState<User | null>(user || null);
   const [loading, setLoading] = useState(!user);
+  const [selectedPost, setSelectedPost] = useState<Post | null>(null);
   const router = useRouter();
 
   useFocusEffect(
@@ -82,8 +84,21 @@ const ProfileScreen: React.FC = () => {
     if (!user) refreshUser();
   }, [user]);
 
+  // const renderPost: ListRenderItem<Post> = ({ item }) => (
+  //   <Image source={{ uri: item.imageUrl }} style={styles.postImage} />
+  // );
+
+  const handlePress = (item: Post) => {
+    setSelectedPost(item);
+  };
+
   const renderPost: ListRenderItem<Post> = ({ item }) => (
-    <Image source={{ uri: item.imageUrl }} style={styles.postImage} />
+    <TouchableOpacity
+      style={styles.postWrapper}
+      onPress={() => handlePress(item)}
+    >
+      <Image source={{ uri: item.imageUrl }} style={styles.postImage} />
+    </TouchableOpacity>
   );
 
   if (loading)
@@ -156,6 +171,43 @@ const ProfileScreen: React.FC = () => {
       >
         <Text style={styles.buttonText}>Log out</Text>
       </TouchableOpacity>
+
+      {/* Display single post */}
+      {selectedPost && (
+        <View style={styles.modalOverlay}>
+          <TouchableOpacity
+            style={styles.modalBackground}
+            onPress={() => setSelectedPost(null)}
+          />
+          <View style={styles.modalContent}>
+            <Text
+              style={{
+                alignSelf: "flex-start",
+                fontSize: 20,
+                fontWeight: "700",
+              }}
+            >
+              {user.name}
+            </Text>
+            <Image
+              source={{ uri: selectedPost.imageUrl }}
+              style={styles.modalImage}
+              resizeMode="contain"
+            />
+            <View style={styles.actions}>
+              <TouchableOpacity style={styles.iconButton}>
+                <Ionicons name="heart-outline" size={24} color="#000" />
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.iconButton}>
+                <Ionicons name="chatbubble-outline" size={24} color="#000" />
+              </TouchableOpacity>
+            </View>
+            {selectedPost.caption && (
+              <Text style={styles.modalCaption}>{selectedPost.caption}</Text>
+            )}
+          </View>
+        </View>
+      )}
     </View>
   );
 };
