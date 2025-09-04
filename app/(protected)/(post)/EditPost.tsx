@@ -47,7 +47,7 @@ export default function EditPost() {
         <TouchableOpacity
           style={editStyles.button}
           onPress={() =>
-            handleNewPost(caption, user.name, user._id, uri, platform)
+            handleNewPost(caption, user.name, user._id, uri, platform, user.profileImageUrl)
           }
         >
           <Text style={editStyles.buttonText}>Post</Text>

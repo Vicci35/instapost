@@ -3,7 +3,8 @@ export const handleNewPost = async (
   name: string,
   id: string,
   uri: string | null,
-  platform: string
+  platform: string,
+  profileImageUrl?: string,
 ) => {
   let imageBase64: string | null = null;
 
@@ -40,6 +41,7 @@ export const handleNewPost = async (
       username: name,
       userId: id,
       imageBase64,
+      profileImageUrl,
     }),
   });
 

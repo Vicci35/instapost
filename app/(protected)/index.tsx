@@ -26,8 +26,8 @@ interface Comment {
 
 interface Post {
   _id: string;
-  username: string;
-  profileImageUrl?: string;
+  username: string; 
+  profileImageUrl?: string; 
   imageUrl: string;
   caption: string;
   likes: number;
@@ -37,7 +37,7 @@ interface Post {
 interface User {
   _id: string;
   username: string;
-  name: string; // Lägg till name eftersom backend skickar detta
+  name: string; 
   profileImageUrl?: string;
 }
 
@@ -189,7 +189,7 @@ const handleLike = async (postId: string) => {
   // Funktion för att navigera till användarprofil
   const navigateToUserProfile = (userId: string) => {
     // Använd replace istället för push för att undvika ny tab
-    router.push(`/(protected)/(userProfile)/${userId}`);
+    router.replace(`/(protected)/(userProfile)/${userId}`);
   };
 
   if (loading) {
