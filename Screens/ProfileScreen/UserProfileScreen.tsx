@@ -72,6 +72,7 @@ const UserProfileScreen: React.FC<UserProfileScreenProps> = ({
         }
 
         if (data) {
+          console.log("Fetched user profile:", data);
           setUserData(data);
           if (user && data.followers.some((f) => f._id === user._id)) {
             setIsFollowing(true);
@@ -176,9 +177,12 @@ const UserProfileScreen: React.FC<UserProfileScreenProps> = ({
         data={userData.posts}
         keyExtractor={(item) => item._id}
         numColumns={3}
-        renderItem={({ item }) => (
-          <Image source={{ uri: item.imageUrl }} style={styles.postImage} />
-        )}
+        renderItem={({ item }) => {
+          console.log("Rendering post:", item);
+          return (
+            <Image source={{ uri: item.imageUrl }} style={styles.postImage} />
+          );
+        }}
         style={styles.postsContainer}
       />
     </SafeAreaView>
