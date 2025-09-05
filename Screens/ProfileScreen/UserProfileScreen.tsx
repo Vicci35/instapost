@@ -180,7 +180,9 @@ const UserProfileScreen: React.FC<UserProfileScreenProps> = ({
         renderItem={({ item }) => {
           console.log("Rendering post:", item);
           return (
-            <Image source={{ uri: item.imageUrl }} style={styles.postImage} />
+            <View style={styles.postWrapper}>
+              <Image source={{ uri: item.imageUrl }} style={styles.postImage} />
+            </View>
           );
         }}
         style={styles.postsContainer}
