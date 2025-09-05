@@ -11,9 +11,7 @@ export default function Search() {
       <EditProfile />
       <TouchableOpacity
         onPress={() => router.push("/(protected)/(profile)/profile")}
-      >
-        <Text>Back to profile</Text>
-      </TouchableOpacity>
+      ></TouchableOpacity>
     </SafeAreaView>
   );
 }

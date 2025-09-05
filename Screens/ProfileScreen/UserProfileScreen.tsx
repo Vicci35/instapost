@@ -47,7 +47,7 @@ type UserProfileScreenProps = {
 const BACKEND_URL =
   Platform.OS === "web"
     ? "http://localhost:3000"
-    : "http://192.168.1.140:3000";
+    : "http://192.168.68.104:3000";
 
 const UserProfileScreen: React.FC<UserProfileScreenProps> = ({
   userId,
@@ -247,16 +247,6 @@ const UserProfileScreen: React.FC<UserProfileScreenProps> = ({
               style={styles.modalImage}
               resizeMode="contain"
             />
-
-            {/* Actions (like + comment) */}
-            <View style={styles.actions}>
-              <TouchableOpacity style={styles.iconButton}>
-                <Ionicons name="heart-outline" size={24} color="#000" />
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.iconButton}>
-                <Ionicons name="chatbubble-outline" size={24} color="#000" />
-              </TouchableOpacity>
-            </View>
 
             {/* Caption */}
             {selectedPost.caption && (

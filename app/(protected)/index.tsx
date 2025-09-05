@@ -15,6 +15,8 @@ import { styles } from "@/styles/protectedStyles";
 import PostCard from "@/app/components/PostCard";
 import { useRouter } from "expo-router";
 import { UserContext } from "@/contexts/userContext";
+import { useFocusEffect } from "@react-navigation/native";
+import { useCallback } from "react";
 
 interface Comment {
   text: string;
@@ -54,13 +56,16 @@ export default function Home() {
   const BACKEND_URL =
     Platform.OS === "web"
       ? "http://localhost:3000"
-
-
       : "http://192.168.68.104:3000";
 
-
-
   const currentUserId = user?._id;
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchPosts();
+      fetchLikedPosts();
+    }, [])
+  );
 
   const fetchUsers = async () => {
     try {
@@ -303,24 +308,23 @@ export default function Home() {
         data={posts}
         keyExtractor={(item) => item._id}
         renderItem={({ item }) => (
-          <PostCard
-            id={item._id}
-            username={item.username}
-            profileImageUrl={item.profileImageUrl}
-            imageUrl={item.imageUrl}
-            caption={item.caption}
-            likes={item.likes}
-            comments={item.comments || []}
-            onLike={() => handleLike(item._id)}
-            onComment={(comment) => handleComment(item._id, comment)}
-            isLiked={likedPosts.includes(item._id)}
-            userID={currentUserId}
-          />
+          <View style={{ width: "100%", marginBottom: 12 }}>
+            <PostCard
+              id={item._id}
+              username={item.username}
+              profileImageUrl={item.profileImageUrl}
+              imageUrl={item.imageUrl}
+              caption={item.caption}
+              likes={item.likes}
+              comments={item.comments || []}
+              onLike={() => handleLike(item._id)}
+              onComment={(comment) => handleComment(item._id, comment)}
+              isLiked={likedPosts.includes(item._id)}
+              userID={currentUserId}
+            />
+          </View>
         )}
-        contentContainerStyle={{ padding: 12 }}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
+        contentContainerStyle={{ paddingBottom: 12 }}
       />
     </SafeAreaView>
   );
