@@ -1,8 +1,11 @@
 // Register
 import { useState } from "react";
 import { Text, TextInput, TouchableOpacity } from "react-native";
-import { SafeAreaView } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
+import { Platform } from "react-native";
+import { signupUser } from "@/controllers/signupController";
+import { checkInput } from "@/util/validators";
 import { styles } from "../../styles/registerStyle";
 
 export default function RegisterScreen() {
@@ -14,13 +17,29 @@ export default function RegisterScreen() {
   });
   const router = useRouter();
 
-  function handleSignup() {
+  async function handleSignup() {
     const allFilled = Object.values(newUser).every(
       (value) => value.trim() !== ""
     );
 
+    for (const [field, value] of Object.entries(newUser)) {
+      const result = checkInput(field, value, newUser);
+      if (!result.valid) {
+        console.error(result.message);
+        return;
+      }
+    }
+
     if (allFilled) {
-      console.log(newUser);
+      // Send to server
+      await signupUser(newUser, Platform.OS);
+      setUser({
+        email: "",
+        username: "",
+        password: "",
+        repeatPassword: "",
+      });
+      router.push("/login");
     } else {
       console.error("Fyll i alla fält!");
     }
@@ -29,10 +48,10 @@ export default function RegisterScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Register account</Text>
-      {/* Email */}
       <TextInput
         style={styles.input}
         placeholder="Email"
+        placeholderTextColor="#333" // <- gör placeholder mörkgrå/svart
         value={newUser.email}
         onChangeText={(text: string) =>
           setUser((prev) => ({ ...prev, email: text }))
@@ -40,21 +59,20 @@ export default function RegisterScreen() {
         keyboardType="email-address"
       />
 
-      {/* Username */}
       <TextInput
         style={styles.input}
         placeholder="Username"
+        placeholderTextColor="#333"
         value={newUser.username}
         onChangeText={(text: string) =>
           setUser((prev) => ({ ...prev, username: text }))
         }
-        keyboardType="email-address"
       />
 
-      {/* Password */}
       <TextInput
         style={styles.input}
         placeholder="Password"
+        placeholderTextColor="#333"
         value={newUser.password}
         onChangeText={(text: string) =>
           setUser((prev) => ({ ...prev, password: text }))
@@ -62,10 +80,10 @@ export default function RegisterScreen() {
         secureTextEntry
       />
 
-      {/* Repeat Password */}
       <TextInput
         style={styles.input}
         placeholder="Repeat password"
+        placeholderTextColor="#333"
         value={newUser.repeatPassword}
         onChangeText={(text: string) =>
           setUser((prev) => ({ ...prev, repeatPassword: text }))

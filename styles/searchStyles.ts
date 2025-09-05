@@ -1,9 +1,8 @@
 import { StyleSheet } from "react-native";
 
-export const styles = StyleSheet.create({
+export const searchStyle = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
     padding: 20,
     backgroundColor: "#fff",
   },
@@ -13,11 +12,14 @@ export const styles = StyleSheet.create({
     textAlign: "center",
     fontWeight: "bold",
   },
-  input: {
+  searchInput: {
+    width: "100%",
     borderWidth: 1,
     borderColor: "#ccc",
     padding: 10,
-    marginBottom: 15,
-    borderRadius: 5,
+    borderRadius: 8,
+    marginBottom: 10,
+    backgroundColor: "#fff",
+    color: "#000",
   },
 });

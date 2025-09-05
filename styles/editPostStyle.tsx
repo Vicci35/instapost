@@ -1,28 +1,18 @@
 import { StyleSheet } from "react-native";
 
-export const styles = StyleSheet.create({
+export const editStyles = StyleSheet.create({
   container: {
-    flex: 1,
     alignItems: "center",
-    justifyContent: "center",
-    padding: 20,
-    backgroundColor: "#fff",
-  },
-  title: {
-    fontSize: 24,
-    marginBottom: 20,
-    textAlign: "center",
-    fontWeight: "bold",
   },
   input: {
     borderWidth: 1,
     borderColor: "#ccc",
-    padding: 10,
-    marginBottom: 15,
-    borderRadius: 5,
-    width: 250,
+    borderRadius: 8,
+    padding: 12,
+    fontSize: 16,
+    marginBottom: 16,
     backgroundColor: "#fff",
-    color: "#000",
+    width: 200,
   },
   button: {
     color: "white",
@@ -37,8 +27,5 @@ export const styles = StyleSheet.create({
     textAlign: "center",
     color: "white",
     fontSize: 16,
-  },
-  eyeButton: {
-    padding: 10,
   },
 });
