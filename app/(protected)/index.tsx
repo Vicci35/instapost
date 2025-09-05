@@ -13,7 +13,6 @@ import {
 } from "react-native";
 import { styles } from "@/styles/protectedStyles";
 import PostCard from "@/app/components/PostCard";
-
 import { useRouter } from "expo-router";
 import { UserContext } from "@/contexts/userContext";
 
@@ -96,47 +95,43 @@ export default function Home() {
     }
   };
 
-
-
   const handleComment = async (postID: string, comment: string) => {
     if (!user || !user.name || !user._id) {
-        console.error("Användardata är inte tillgänglig. Kan inte kommentera.");
-        return; 
-    }   
-    try {
-        const response = await fetch(`${BACKEND_URL}/posts/${postID}/comment`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                comment,
-                userId: user._id,
-                username: user.name,
-            }),
-        });
-        
-        if (!response.ok) {
-            throw new Error("Kunde inte skicka kommentar");
-        }
-        
-        const data = await response.json();
-        
-        setPosts((prevPosts) =>
-            prevPosts.map((post) => {
-                if (post._id === postID) {
-                    return {
-                        ...post,
-                        comments: data.comments,
-                    };
-                }
-                return post;
-            })
-        );
-
-
-    } catch (error) {
-        console.error("Kunde inte skicka kommentar:", error);
+      console.error("Användardata är inte tillgänglig. Kan inte kommentera.");
+      return;
     }
-};
+    try {
+      const response = await fetch(`${BACKEND_URL}/posts/${postID}/comment`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          comment,
+          userId: user._id,
+          username: user.name,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Kunde inte skicka kommentar");
+      }
+
+      const data = await response.json();
+
+      setPosts((prevPosts) =>
+        prevPosts.map((post) => {
+          if (post._id === postID) {
+            return {
+              ...post,
+              comments: data.comments,
+            };
+          }
+          return post;
+        })
+      );
+    } catch (error) {
+      console.error("Kunde inte skicka kommentar:", error);
+    }
+  };
 
   //Hämtar gillade inlägg
   const fetchLikedPosts = async () => {
@@ -178,31 +173,29 @@ export default function Home() {
     }
   }, [searchText, allUsers]);
 
-
-const handleLike = async (postID: string, userID: string) => {
+  const handleLike = async (postID: string, userID: string) => {
     if (!userID || !token) {
-        console.error("Användaren är inte inloggad.");
-        return;
-
+      console.error("Användaren är inte inloggad.");
+      return;
     }
     try {
-      await fetch(`${BACKEND_URL}/posts/${postId}/like`, {
+      await fetch(`${BACKEND_URL}/posts/${postID}/like`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userID: user._id }),
       });
 
-      const isCurrentlyLiked = likedPosts.includes(postId);
+      const isCurrentlyLiked = likedPosts.includes(postID);
 
       if (isCurrentlyLiked) {
-        setLikedPosts(likedPosts.filter((id) => id !== postId));
+        setLikedPosts(likedPosts.filter((id) => id !== postID));
       } else {
-        setLikedPosts([...likedPosts, postId]);
+        setLikedPosts([...likedPosts, postID]);
       }
 
       setPosts((prevPosts) =>
         prevPosts.map((post) => {
-          if (post._id === postId) {
+          if (post._id === postID) {
             return {
               ...post,
               likes: isCurrentlyLiked ? post.likes - 1 : post.likes + 1,
@@ -222,12 +215,10 @@ const handleLike = async (postID: string, userID: string) => {
     fetchLikedPosts();
   };
 
-
   // Funktion för att navigera till användarprofil
   const navigateToUserProfile = (userId: string) => {
     // Använd replace istället för push för att undvika ny tab
     router.replace(`/(protected)/userId/${userId}`);
-
   };
 
   if (loading) {
@@ -249,7 +240,7 @@ const handleLike = async (postID: string, userID: string) => {
           borderWidth: 1,
           borderColor: "#ccc",
           padding: 8,
-          margin: 12,
+          marginTop: 30,
           borderRadius: 8,
         }}
       />
@@ -261,7 +252,7 @@ const handleLike = async (postID: string, userID: string) => {
             keyExtractor={(item) => item._id}
             renderItem={({ item }) => (
               <TouchableOpacity
-                onPress={() => navigateToUserProfile(item.name)}
+                onPress={() => navigateToUserProfile(item._id)}
                 style={{
                   padding: 10,
                   borderBottomWidth: 1,
@@ -307,9 +298,7 @@ const handleLike = async (postID: string, userID: string) => {
               onLike={() => handleLike(item._id, currentUserId)}
               onComment={(comment) => handleComment(item._id, comment)}
               isLiked={likedPosts.includes(item._id)}
-
               userID={currentUserId}
-
             />
           )}
           contentContainerStyle={{ padding: 12 }}

@@ -5,9 +5,10 @@ export const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    maxWidth: 600, 
-    alignSelf: 'center',
-    width: '100%',
+    maxWidth: 600,
+    alignSelf: "center",
+    width: "100%",
+    paddingTop: 20,
   },
   button: {
     color: "white",

@@ -8,7 +8,7 @@ import {
 } from "react-native";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
-import { useState, useEffect, useContext } from "react";
+import { useState, useContext } from "react";
 import { useImage } from "@/contexts/imageContext";
 import { editStyles } from "@/styles/editPostStyle";
 import { UserContext } from "@/contexts/userContext";

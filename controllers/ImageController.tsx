@@ -1,4 +1,5 @@
-import { Router } from "expo-router";
+import * as FileSystem from "expo-file-system";
+import { Platform } from "react-native";
 
 export const handleNewPost = async (
   caption: string,
@@ -10,16 +11,25 @@ export const handleNewPost = async (
 ) => {
   let imageBase64: string | null = null;
 
-  if (uri && platform === "web") {
-    const response = await fetch(uri);
-    const blob = await response.blob();
+  if (uri) {
+    if (platform === "web") {
+      // Web: använd FileReader
+      const response = await fetch(uri);
+      const blob = await response.blob();
 
-    const reader = new FileReader();
-    imageBase64 = await new Promise((resolve, reject) => {
-      reader.onloadend = () => resolve(reader.result as string);
-      reader.onerror = reject;
-      reader.readAsDataURL(blob); // Gör om till base64 direkt
-    });
+      const reader = new FileReader();
+      imageBase64 = await new Promise((resolve, reject) => {
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob); // Gör om till base64 direkt
+      });
+    } else {
+      // Mobil: använd expo-file-system
+      imageBase64 = await FileSystem.readAsStringAsync(uri, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+      imageBase64 = `data:image/jpeg;base64,${imageBase64}`; // Lägg till data URI-prefix
+    }
   }
 
   const URL =
