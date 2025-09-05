@@ -102,24 +102,43 @@ export default function Home() {
 
 
   const handleComment = async (postID: string, comment: string) => {
-    if (!currentUserId) return;
+    if (!user || !user.name || !user._id) {
+        console.error("Användardata är inte tillgänglig. Kan inte kommentera.");
+        return; 
+    }   
     try {
-      await fetch(`${BACKEND_URL}/posts/${postID}/comment`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          comment,
-          userID: currentUserId,
-
-          username: user?.username || "okänd_användare",
-        }),
-      });
-      
+        const response = await fetch(`${BACKEND_URL}/posts/${postID}/comment`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                comment,
+                userId: user._id,
+                username: user.name,
+            }),
+        });
+        
+        if (!response.ok) {
+            throw new Error("Kunde inte skicka kommentar");
+        }
+        
+        const data = await response.json();
+        
+        setPosts((prevPosts) =>
+            prevPosts.map((post) => {
+                if (post._id === postID) {
+                    return {
+                        ...post,
+                        comments: data.comments,
+                    };
+                }
+                return post;
+            })
+        );
 
     } catch (error) {
-      console.error("Kunde inte skicka kommentar:", error);
+        console.error("Kunde inte skicka kommentar:", error);
     }
-  };
+};
 
   //Hämtar gillade inlägg
   const fetchLikedPosts = async () => {
@@ -164,7 +183,7 @@ export default function Home() {
   }, [searchText, allUsers]);
 
 const handleLike = async (postID: string, userID: string) => {
-    if (!userID) {
+    if (!userID || !token) {
         console.error("Användaren är inte inloggad.");
         return;
     }
