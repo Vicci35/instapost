@@ -10,22 +10,12 @@ import { PickImage } from "@/app/components/ImagePicker";
 import { router } from "expo-router";
 import { useImage } from "@/contexts/imageContext";
 
-// TA BORT SEN
-import { handleLogout } from "@/controllers/logoutController";
-import { UserContext } from "@/contexts/userContext";
-import { Platform } from "react-native";
-// TA BORT SEN
-
 export default function Post() {
   const [facing, setFacing] = useState<CameraType>("back");
   const [permission, requestPermission] = useCameraPermissions();
   const [flashOn, setFlashOn] = useState<boolean>(false);
   const ref = useRef<CameraView | null>(null);
   const { uri, setUri } = useImage();
-
-  // TA BORT SEN
-  const { user, token, setUser, logout } = useContext(UserContext);
-  // TA BORT SEN
 
   if (!permission) {
     return (
@@ -173,12 +163,6 @@ export default function Post() {
           <PickImage setUri={setUri} />
         </View>
       </View>
-
-      <TouchableOpacity
-        onPress={() => handleLogout(router, Platform.OS, logout)}
-      >
-        <Text>Log out</Text>
-      </TouchableOpacity>
     </SafeAreaView>
   );
 }

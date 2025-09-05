@@ -13,7 +13,6 @@ export const handleNewPost = async (
 
   if (uri) {
     if (platform === "web") {
-      // Web: använd FileReader
       const response = await fetch(uri);
       const blob = await response.blob();
 
@@ -21,19 +20,22 @@ export const handleNewPost = async (
       imageBase64 = await new Promise((resolve, reject) => {
         reader.onloadend = () => resolve(reader.result as string);
         reader.onerror = reject;
-        reader.readAsDataURL(blob); // Gör om till base64 direkt
+        reader.readAsDataURL(blob);
       });
     } else {
-      // Mobil: använd expo-file-system
       imageBase64 = await FileSystem.readAsStringAsync(uri, {
         encoding: FileSystem.EncodingType.Base64,
       });
-      imageBase64 = `data:image/jpeg;base64,${imageBase64}`; // Lägg till data URI-prefix
+      imageBase64 = `data:image/jpeg;base64,${imageBase64}`;
     }
   }
 
   const URL =
-    platform === "web" ? "http://localhost:3000" : "http://192.168.1.140:3000";
+
+
+    platform === "web" ? "http://localhost:3000" : "http://192.168.68.104:3000";
+
+
 
   const response = await fetch(URL + "/posts/new", {
     method: "POST",
