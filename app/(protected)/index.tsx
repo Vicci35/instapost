@@ -96,21 +96,60 @@ export default function Home() {
     }
   };
 
-  const handleComment = async (postId: string, comment: string) => {
-    if (!currentUserId) return;
-    try {
-      await fetch(`${BACKEND_URL}/posts/${postId}/comment`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          comment,
-          userId: currentUserId,
 
-          username: user?.username || "okänd_användare",
-        }),
-      });
+
+  const handleComment = async (postID: string, comment: string) => {
+    if (!user || !user.name || !user._id) {
+        console.error("Användardata är inte tillgänglig. Kan inte kommentera.");
+        return; 
+    }   
+    try {
+        const response = await fetch(`${BACKEND_URL}/posts/${postID}/comment`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                comment,
+                userId: user._id,
+                username: user.name,
+            }),
+        });
+        
+        if (!response.ok) {
+            throw new Error("Kunde inte skicka kommentar");
+        }
+        
+        const data = await response.json();
+        
+        setPosts((prevPosts) =>
+            prevPosts.map((post) => {
+                if (post._id === postID) {
+                    return {
+                        ...post,
+                        comments: data.comments,
+                    };
+                }
+                return post;
+            })
+        );
+
+
     } catch (error) {
-      console.error("Kunde inte skicka kommentar:", error);
+        console.error("Kunde inte skicka kommentar:", error);
+    }
+};
+
+  //Hämtar gillade inlägg
+  const fetchLikedPosts = async () => {
+    if (!user || !user._id) return;
+    try {
+      const response = await fetch(`${BACKEND_URL}/posts/likes/${user._id}`);
+      if (!response.ok) throw new Error("Kunde inte hämta gillade inlägg");
+      const data = await response.json();
+      setLikedPosts(data);
+
+      console.log("Mottagen lista av gillade inlägg:", data);
+    } catch (error) {
+      console.error("Fel vid hämtning av gillade inlägg:", error);
     }
   };
 
@@ -119,8 +158,9 @@ export default function Home() {
       // Vänta tills vi har token
       fetchPosts();
       fetchUsers();
+      fetchLikedPosts();
     }
-  }, [token]);
+  }, [token, user]);
 
   useEffect(() => {
     if (searchText.length > 0) {
@@ -138,16 +178,18 @@ export default function Home() {
     }
   }, [searchText, allUsers]);
 
-  const handleLike = async (postId: string) => {
-    if (!currentUserId) {
-      console.error("Användaren är inte inloggad.");
-      return;
+
+const handleLike = async (postID: string, userID: string) => {
+    if (!userID || !token) {
+        console.error("Användaren är inte inloggad.");
+        return;
+
     }
     try {
       await fetch(`${BACKEND_URL}/posts/${postId}/like`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: currentUserId }),
+        body: JSON.stringify({ userID: user._id }),
       });
 
       const isCurrentlyLiked = likedPosts.includes(postId);
@@ -177,10 +219,15 @@ export default function Home() {
   const onRefresh = () => {
     setRefreshing(true);
     fetchPosts();
+    fetchLikedPosts();
   };
 
-  const navigateToUserProfile = (name: string) => {
-    router.push(`/(protected)/(userProfile)/${name}`);
+
+  // Funktion för att navigera till användarprofil
+  const navigateToUserProfile = (userId: string) => {
+    // Använd replace istället för push för att undvika ny tab
+    router.replace(`/(protected)/userId/${userId}`);
+
   };
 
   if (loading) {
@@ -257,9 +304,12 @@ export default function Home() {
               caption={item.caption}
               likes={item.likes}
               comments={item.comments || []}
-              onLike={() => handleLike(item._id)}
+              onLike={() => handleLike(item._id, currentUserId)}
               onComment={(comment) => handleComment(item._id, comment)}
               isLiked={likedPosts.includes(item._id)}
+
+              userID={currentUserId}
+
             />
           )}
           contentContainerStyle={{ padding: 12 }}

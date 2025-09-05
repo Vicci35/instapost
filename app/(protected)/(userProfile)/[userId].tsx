@@ -1,5 +1,5 @@
 import { useLocalSearchParams } from "expo-router";
-import UserProfileScreen from "../../../Screens/ProfileScreen/UserProfileScreen";
+import UserProfileScreen from "@/Screens/ProfileScreen/UserProfileScreen";
 import { styles } from "@/styles/protectedStyles";
 import { SafeAreaView } from "react-native-safe-area-context";
 
