@@ -17,7 +17,7 @@ interface PostCardProps {
   caption: string;
   likes: number;
   comments: Comment[]
-  onLike: (id: string, userId: string) => void;
+  onLike: (id: string, userID: string) => void;
   onComment: (comment: string) => void;
   isLiked: boolean; 
 }
@@ -35,6 +35,7 @@ export default function PostCard({
   onComment,
   isLiked, 
 }: PostCardProps) {
+  const [showComments, setShowComments] = useState(false);
   const [commentText, setCommentText] = useState("");
 
   const handleCommentSubmit = () => {
@@ -67,11 +68,18 @@ export default function PostCard({
           ) : ( 
           <Ionicons name="heart-outline" size={24} color="#000" />
           )}
+         </TouchableOpacity>
+         {/* ✅ Använd onPress för att växla tillståndet */}
+        <TouchableOpacity onPress={() => setShowComments(!showComments)} style={styles.iconButton}>
+         <Ionicons name="chatbubble-outline" size={24} color="#000" />
+          {/* ✅ Visa antalet kommentarer bredvid bubblan */}
+          {comments.length > 0 && (
+            <View style={styles.commentCountBadge}>
+             <Text style={styles.commentCountText}>{comments.length}</Text>
+            </View>
+          )}
         </TouchableOpacity>
-        <TouchableOpacity style={styles.iconButton}>
-          <Ionicons name="chatbubble-outline" size={24} color="#000" />
-        </TouchableOpacity>
-      </View>
+       </View>
 
       <View style={styles.info}>
         <Text style={styles.likes}>{likes} gilla-markeringar</Text>
@@ -80,14 +88,18 @@ export default function PostCard({
         </Text>
       </View>
 
-       {/* Här renderas kommentarerna */}
-      {comments && comments.map((comment, index) => (
-        <View key={index} style={styles.commentContainer}>
-          <Text>
-            <Text style={styles.username}>{comment.username}</Text> {comment.text}
-          </Text>
+      {/* Villkorlig rendering: visa kommentarer endast om showComments är true */}
+      {showComments && comments.length > 0 && (
+        <View style={styles.commentSection}>
+          {comments.map((comment, index) => (
+            <View key={index} style={styles.commentContainer}>
+              <Text>
+                <Text style={styles.username}>{comment.username}</Text> {comment.text}
+              </Text>
+            </View>
+          ))}
         </View>
-      ))}
+      )}
 
       <View style={styles.commentSection}>
         <TextInput
