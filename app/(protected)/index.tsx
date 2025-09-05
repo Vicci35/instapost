@@ -205,7 +205,7 @@ export default function Home() {
   // Funktion för att navigera till användarprofil
   const navigateToUserProfile = (userId: string) => {
     // Använd replace istället för push för att undvika ny tab
-    router.replace(`/(protected)/(userProfile)/${userId}`);
+    router.push(`/(protected)/(userProfile)/${userId}`);
   };
 
   if (loading) {

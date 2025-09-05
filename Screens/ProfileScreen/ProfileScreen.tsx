@@ -16,6 +16,7 @@ import { handleLogout } from "@/controllers/logoutController";
 import { UserContext } from "@/contexts/userContext";
 import { refreshUserData } from "@/controllers/refreshController";
 import { Ionicons } from "@expo/vector-icons";
+import BioText from "@/app/components/BioText";
 
 type Post = {
   _id: string;
@@ -150,7 +151,7 @@ const ProfileScreen: React.FC = () => {
               <Text style={styles.editButtonText}>Redigera profil</Text>
             </TouchableOpacity>
           </View>
-          {userData.bio && <Text style={styles.bio}>{userData.bio}</Text>}
+          {userData.bio && <BioText bio={userData.bio} />}
         </View>
       </View>
 
