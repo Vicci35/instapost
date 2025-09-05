@@ -174,7 +174,7 @@ export default function Home() {
     }
   }, [searchText, allUsers]);
 
-  const handleLike = async (postID: string, userID: string) => {
+  const handleLike = async (postId: string, userID: string) => {
     if (!userID || !token) {
       console.error("Användaren är inte inloggad.");
       return;
