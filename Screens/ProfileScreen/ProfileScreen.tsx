@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
   Platform,
 } from "react-native";
+import * as SecureStore from "expo-secure-store";
 import { useRouter, useFocusEffect } from "expo-router";
 import { getProfile } from "@/controllers/profileController";
 import styles from "../../styles/ProfileScreenStyles";
@@ -39,6 +40,7 @@ const ProfileScreen: React.FC = () => {
   const [userData, setUserData] = useState<User | null>(user || null);
   const [loading, setLoading] = useState(!user);
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
+  const platform = Platform.OS;
   const router = useRouter();
 
   useFocusEffect(
@@ -51,7 +53,11 @@ const ProfileScreen: React.FC = () => {
           if (freshUser) {
             setUserData(freshUser);
             setUser(freshUser);
-            localStorage.setItem("id", freshUser._id);
+            if (platform === "web") {
+              localStorage.setItem("id", freshUser._id);
+            } else {
+              await SecureStore.setItemAsync("id", freshUser._id);
+            }
           }
         } catch (err) {
           console.error(err);
@@ -65,9 +71,14 @@ const ProfileScreen: React.FC = () => {
 
   useEffect(() => {
     const refreshUser = async () => {
-      const platform = "web"; // vi kör bara web nu
-      const userID = localStorage.getItem("id");
-      if (!userID) return;
+      // const platform = "web"; // vi kör bara web nu
+      let userID: string | null = null;
+      if (platform === "web") {
+        userID = localStorage.getItem("id");
+        if (!userID) return;
+      } else {
+        userID = await SecureStore.getItemAsync("id");
+      }
 
       try {
         const data = await refreshUserData(platform, userID);

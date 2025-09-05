@@ -16,10 +16,13 @@ import {
 } from "@/controllers/profileController";
 import { UserContext } from "@/contexts/userContext";
 import BioText from "@/app/components/BioText";
+import { Ionicons } from "@expo/vector-icons";
 
 type Post = {
   _id: string;
   imageUrl: string;
+  caption?: string;
+  createdAt?: string;
 };
 
 type Follower = {
@@ -54,6 +57,7 @@ const UserProfileScreen: React.FC<UserProfileScreenProps> = ({
   const [userData, setUserData] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [isFollowing, setIsFollowing] = useState(false);
+  const [selectedPost, setSelectedPost] = useState<Post | null>(null);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -72,6 +76,7 @@ const UserProfileScreen: React.FC<UserProfileScreenProps> = ({
         }
 
         if (data) {
+          console.log("Fetched user profile:", data);
           setUserData(data);
           if (user && data.followers.some((f) => f._id === user._id)) {
             setIsFollowing(true);
@@ -136,6 +141,10 @@ const UserProfileScreen: React.FC<UserProfileScreenProps> = ({
     );
   }
 
+  const handlePressPost = (post: Post) => {
+    setSelectedPost(post);
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
@@ -177,10 +186,55 @@ const UserProfileScreen: React.FC<UserProfileScreenProps> = ({
         keyExtractor={(item) => item._id}
         numColumns={3}
         renderItem={({ item }) => (
-          <Image source={{ uri: item.imageUrl }} style={styles.postImage} />
+          <TouchableOpacity
+            style={styles.postWrapper}
+            onPress={() => handlePressPost(item)}
+          >
+            <Image source={{ uri: item.imageUrl }} style={styles.postImage} />
+          </TouchableOpacity>
         )}
         style={styles.postsContainer}
       />
+      {selectedPost && (
+        <View style={styles.modalOverlay}>
+          <TouchableOpacity
+            style={styles.modalBackground}
+            onPress={() => setSelectedPost(null)}
+          />
+          <View style={styles.modalContent}>
+            <Text
+              style={{
+                fontSize: 20,
+                fontWeight: "700",
+                alignSelf: "flex-start",
+              }}
+            >
+              {userData.name}
+            </Text>
+
+            <Image
+              source={{ uri: selectedPost.imageUrl }}
+              style={styles.modalImage}
+              resizeMode="contain"
+            />
+
+            {/* Actions (like + comment) */}
+            <View style={styles.actions}>
+              <TouchableOpacity style={styles.iconButton}>
+                <Ionicons name="heart-outline" size={24} color="#000" />
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.iconButton}>
+                <Ionicons name="chatbubble-outline" size={24} color="#000" />
+              </TouchableOpacity>
+            </View>
+
+            {/* Caption */}
+            {selectedPost.caption && (
+              <Text style={styles.modalCaption}>{selectedPost.caption}</Text>
+            )}
+          </View>
+        </View>
+      )}
     </SafeAreaView>
   );
 };
