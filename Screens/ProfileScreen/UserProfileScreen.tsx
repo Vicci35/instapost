@@ -16,6 +16,7 @@ import {
 } from "@/controllers/profileController";
 import { UserContext } from "@/contexts/userContext";
 import { Ionicons } from "@expo/vector-icons";
+import { Dimensions } from "react-native";
 
 type Post = {
   _id: string;
@@ -46,7 +47,7 @@ type UserProfileScreenProps = {
 const BACKEND_URL =
   Platform.OS === "web"
     ? "http://localhost:3000"
-    : "http://192.168.1.140:3000";
+    : "http://192.168.68.104:3000";
 
 const UserProfileScreen: React.FC<UserProfileScreenProps> = ({
   userId,
@@ -57,6 +58,9 @@ const UserProfileScreen: React.FC<UserProfileScreenProps> = ({
   const [loading, setLoading] = useState(true);
   const [isFollowing, setIsFollowing] = useState(false);
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
+
+  const screenWidth = Dimensions.get("window").width;
+  const postSize = screenWidth / 3 - 2;
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -192,20 +196,34 @@ const UserProfileScreen: React.FC<UserProfileScreenProps> = ({
         </View>
       </View>
 
-      <FlatList
-        data={userData.posts}
-        keyExtractor={(item) => item._id}
-        numColumns={3}
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            style={styles.postWrapper}
-            onPress={() => handlePressPost(item)}
-          >
-            <Image source={{ uri: item.imageUrl }} style={styles.postImage} />
-          </TouchableOpacity>
-        )}
-        style={styles.postsContainer}
-      />
+      <View style={{ flex: 1 }}>
+        <FlatList
+          data={userData.posts}
+          keyExtractor={(item) => item._id}
+          numColumns={3}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              style={styles.postWrapper}
+              onPress={() => handlePressPost(item)}
+            >
+              <Image source={{ uri: item.imageUrl }} style={styles.postImage} />
+            </TouchableOpacity>
+          )}
+          ListEmptyComponent={() => (
+            <View
+              style={{
+                width: "100%",
+                justifyContent: "center",
+                alignItems: "center",
+                paddingVertical: 50,
+              }}
+            >
+              <Text style={{ color: "gray" }}>Inga inlägg ännu</Text>
+            </View>
+          )}
+          contentContainerStyle={{ flexGrow: 1 }}
+        />
+      </View>
 
       {selectedPost && (
         <View style={styles.modalOverlay}>

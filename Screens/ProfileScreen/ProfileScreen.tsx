@@ -5,23 +5,21 @@ import {
   Image,
   TouchableOpacity,
   FlatList,
-  ListRenderItem,
   ActivityIndicator,
   Platform,
+  Dimensions,
 } from "react-native";
 import * as SecureStore from "expo-secure-store";
 import { useRouter, useFocusEffect } from "expo-router";
 import { getProfile } from "@/controllers/profileController";
-import styles from "../../styles/ProfileScreenStyles";
 import { handleLogout } from "@/controllers/logoutController";
 import { UserContext } from "@/contexts/userContext";
-import { Ionicons } from "@expo/vector-icons";
+import styles from "../../styles/ProfileScreenStyles";
 
 type Post = {
   _id: string;
   imageUrl: string;
   caption?: string;
-  createdAt?: string;
 };
 
 type User = {
@@ -41,6 +39,13 @@ const ProfileScreen: React.FC = () => {
   const platform = Platform.OS;
   const router = useRouter();
 
+  const screenWidth = Dimensions.get("window").width;
+  const postMargin = 2;
+  const postSize = screenWidth / 3 - postMargin * 2;
+  const BACKEND_URL =
+    platform === "web" ? "http://localhost:3000" : "http://192.168.68.104:3000";
+
+  // Hämta användarprofil
   useFocusEffect(
     useCallback(() => {
       const fetchUserData = async () => {
@@ -67,66 +72,77 @@ const ProfileScreen: React.FC = () => {
     }, [token])
   );
 
+  // Refresh user
   useEffect(() => {
     const refreshUser = async () => {
-      let userID: string | null = null;
-      if (platform === "web") {
-        userID = localStorage.getItem("id");
-        if (!userID) return;
-      } else {
-        userID = await SecureStore.getItemAsync("id");
-      }
-
-      try {
-        const data = await getProfile(token); // återanvänd getProfile för refresh
-        console.log("Refreshed user:", data);
-        if (data) {
-          setUserData(data);
-          setUser(data);
-          setLoading(false);
+      if (!user && token) {
+        try {
+          const data = await getProfile(token);
+          if (data) {
+            setUserData(data);
+            setUser(data);
+            setLoading(false);
+          }
+        } catch (err) {
+          console.error("Refresh failed:", err);
         }
-      } catch (err) {
-        console.error("Refresh failed:", err);
       }
     };
-
-    if (!user) refreshUser();
+    refreshUser();
   }, [user, token]);
 
   const handlePress = (item: Post) => {
     setSelectedPost(item);
   };
 
-  const renderPost: ListRenderItem<Post> = ({ item }) => (
-    <TouchableOpacity
-      style={styles.postWrapper}
-      onPress={() => handlePress(item)}
-    >
-      <Image source={{ uri: item.imageUrl }} style={styles.postImage} />
-    </TouchableOpacity>
-  );
+  const renderPost = ({ item }: { item: Post }) => {
+    const imageUri = item.imageUrl.startsWith("http")
+      ? item.imageUrl
+      : `${BACKEND_URL}/${item.imageUrl}`;
 
-  if (loading)
+    return (
+      <TouchableOpacity
+        style={{ width: postSize, height: postSize, margin: 1 }}
+        onPress={() => handlePress(item)}
+      >
+        <Image
+          source={{ uri: imageUri }}
+          style={{ width: "100%", height: "100%" }}
+        />
+      </TouchableOpacity>
+    );
+  };
+
+  if (loading) {
     return (
       <View style={styles.container}>
         <ActivityIndicator size="large" color="#3498db" />
       </View>
     );
+  }
 
-  if (!userData)
+  if (!userData) {
     return (
       <View style={styles.container}>
         <Text>Ingen användardata hittades</Text>
       </View>
     );
+  }
+
+  const profileImageUri = userData.profileImage
+    ? userData.profileImage.startsWith("http")
+      ? userData.profileImage
+      : `${BACKEND_URL}/${userData.profileImage}`
+    : undefined;
 
   return (
     <View style={styles.container}>
+      {/* Header med profilbild och info */}
       <View style={styles.header}>
         <Image
           source={
-            userData.profileImage
-              ? { uri: userData.profileImage }
+            profileImageUri
+              ? { uri: profileImageUri }
               : require("../../assets/images/defaultBildProfil.jpg")
           }
           style={styles.profilePic}
@@ -147,6 +163,7 @@ const ProfileScreen: React.FC = () => {
               <Text style={styles.statLabel}>Följer</Text>
             </View>
           </View>
+
           <View style={styles.buttonRow}>
             <TouchableOpacity
               style={styles.editButton}
@@ -155,22 +172,12 @@ const ProfileScreen: React.FC = () => {
               <Text style={styles.editButtonText}>Redigera profil</Text>
             </TouchableOpacity>
           </View>
-          {userData.bio && (
-            <Text
-              style={{
-                fontSize: 14,
-                color: "black",
-                marginTop: 8,
-                marginLeft: 16,
-                marginRight: 16,
-              }}
-            >
-              {userData.bio}
-            </Text>
-          )}
+
+          {userData.bio && <Text style={styles.bio}>{userData.bio}</Text>}
         </View>
       </View>
 
+      {/* Inlägg */}
       <FlatList
         data={userData.posts}
         keyExtractor={(item) => item._id}
@@ -179,14 +186,15 @@ const ProfileScreen: React.FC = () => {
         style={styles.postsContainer}
       />
 
+      {/* Logga ut */}
       <TouchableOpacity
         style={styles.button}
-        onPress={() => handleLogout(router, Platform.OS, logout)}
+        onPress={() => handleLogout(router, platform, logout)}
       >
         <Text style={styles.buttonText}>Log out</Text>
       </TouchableOpacity>
 
-      {/* Display single post */}
+      {/* Modal för att visa ett inlägg */}
       {selectedPost && (
         <View style={styles.modalOverlay}>
           <TouchableOpacity
@@ -201,21 +209,17 @@ const ProfileScreen: React.FC = () => {
                 fontWeight: "700",
               }}
             >
-              {user.name}
+              {userData.name}
             </Text>
             <Image
-              source={{ uri: selectedPost.imageUrl }}
+              source={{
+                uri: selectedPost.imageUrl.startsWith("http")
+                  ? selectedPost.imageUrl
+                  : `${BACKEND_URL}/${selectedPost.imageUrl}`,
+              }}
               style={styles.modalImage}
               resizeMode="contain"
             />
-            <View style={styles.actions}>
-              <TouchableOpacity style={styles.iconButton}>
-                <Ionicons name="heart-outline" size={24} color="#000" />
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.iconButton}>
-                <Ionicons name="chatbubble-outline" size={24} color="#000" />
-              </TouchableOpacity>
-            </View>
             {selectedPost.caption && (
               <Text style={styles.modalCaption}>{selectedPost.caption}</Text>
             )}

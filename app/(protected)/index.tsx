@@ -54,7 +54,9 @@ export default function Home() {
   const BACKEND_URL =
     Platform.OS === "web"
       ? "http://localhost:3000"
-      : "http://192.168.1.198:3000";
+
+      : "http://192.168.68.104:3000";
+
 
   const currentUserId = user?._id;
 
@@ -249,82 +251,75 @@ export default function Home() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <TextInput
-        ref={searchInputRef}
-        placeholder="Sök användare..."
-        value={searchText}
-        onChangeText={setSearchText}
-        style={{
-          borderWidth: 1,
-          borderColor: "#ccc",
-          padding: 8,
-          marginTop: 30,
-          borderRadius: 8,
-        }}
-      />
+      <View style={{ padding: 12 }}>
+        <TextInput
+          ref={searchInputRef}
+          placeholder="Sök användare..."
+          placeholderTextColor="#555"
+          value={searchText}
+          onChangeText={setSearchText}
+          style={{
+            borderWidth: 1,
+            borderColor: "#ccc",
+            padding: 8,
+            borderRadius: 8,
+            fontSize: 16,
+            backgroundColor: "#fff",
+            color: "#000",
+          }}
+        />
+      </View>
 
       {searchText.length > 0 && (
-        <View style={{ marginBottom: 10 }}>
-          <FlatList
-            data={searchResults}
-            keyExtractor={(item) => item._id}
-            renderItem={({ item }) => (
-              <TouchableOpacity
-                onPress={() => navigateToUserProfile(item._id)}
-                style={{
-                  padding: 10,
-                  borderBottomWidth: 1,
-                  borderBottomColor: "#eee",
-                }}
-              >
-                <Text style={{ fontWeight: "bold" }}>
-                  {item.name || item.username}
-                </Text>
-              </TouchableOpacity>
-            )}
-            contentContainerStyle={{ padding: 12 }}
-            ListHeaderComponent={
-              <Text
-                style={{ fontWeight: "bold", fontSize: 16, marginBottom: 5 }}
-              >
-                Sökresultat ({searchResults.length}):
-              </Text>
-            }
-          />
-        </View>
-      )}
-
-      {loading ? (
-        <ActivityIndicator
-          size="large"
-          color="#000"
-          style={{ marginTop: 20 }}
-        />
-      ) : (
         <FlatList
-          data={posts}
+          data={searchResults}
           keyExtractor={(item) => item._id}
           renderItem={({ item }) => (
-            <PostCard
-              id={item._id}
-              username={item.username}
-              profileImageUrl={item.profileImageUrl}
-              imageUrl={item.imageUrl}
-              caption={item.caption}
-              likes={item.likes}
-              comments={item.comments || []}
-              onLike={() => handleLike(item._id)}
-              onComment={(comment) => handleComment(item._id, comment)}
-              isLiked={likedPosts.includes(item._id)}
-              userID={currentUserId}
-            />
+            <TouchableOpacity
+              onPress={() => navigateToUserProfile(item._id)}
+              style={{
+                padding: 10,
+                borderBottomWidth: 1,
+                borderBottomColor: "#eee",
+              }}
+            >
+              <Text style={{ fontWeight: "bold" }}>
+                {item.name || item.username}
+              </Text>
+            </TouchableOpacity>
           )}
-          contentContainerStyle={{ padding: 12 }}
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          ListHeaderComponent={
+            <Text style={{ fontWeight: "bold", fontSize: 16, marginBottom: 5 }}>
+              Sökresultat ({searchResults.length}):
+            </Text>
           }
+          contentContainerStyle={{ paddingBottom: 12 }}
         />
       )}
+
+      <FlatList
+        data={posts}
+        keyExtractor={(item) => item._id}
+        renderItem={({ item }) => (
+          <PostCard
+            id={item._id}
+            username={item.username}
+            profileImageUrl={item.profileImageUrl}
+            imageUrl={item.imageUrl}
+            caption={item.caption}
+            likes={item.likes}
+            comments={item.comments || []}
+            onLike={() => handleLike(item._id)}
+            onComment={(comment) => handleComment(item._id, comment)}
+            isLiked={likedPosts.includes(item._id)}
+            userID={currentUserId}
+          />
+        )}
+        contentContainerStyle={{ padding: 12 }}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      />
     </SafeAreaView>
   );
 }
