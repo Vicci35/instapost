@@ -1,5 +1,5 @@
 import { CameraView, CameraType, useCameraPermissions } from "expo-camera";
-import { Text, View, Button, TouchableOpacity } from "react-native";
+import { Text, View, Button, TouchableOpacity, Platform } from "react-native";
 import { Image } from "expo-image";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useState, useRef, useContext } from "react";
@@ -9,6 +9,7 @@ import { cameraStyles } from "@/styles/cameraStyles";
 import { PickImage } from "@/app/components/ImagePicker";
 import { router } from "expo-router";
 import { useImage } from "@/contexts/imageContext";
+import { UserContext } from "@/contexts/userContext";
 
 export default function Post() {
   const [facing, setFacing] = useState<CameraType>("back");
@@ -16,6 +17,8 @@ export default function Post() {
   const [flashOn, setFlashOn] = useState<boolean>(false);
   const ref = useRef<CameraView | null>(null);
   const { uri, setUri } = useImage();
+  const platform = Platform.OS;
+  const { user, token, setUser, logout } = useContext(UserContext);
 
   if (!permission) {
     return (

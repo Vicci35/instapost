@@ -43,7 +43,7 @@ const ProfileScreen: React.FC = () => {
   const postMargin = 2;
   const postSize = screenWidth / 3 - postMargin * 2;
   const BACKEND_URL =
-    platform === "web" ? "http://localhost:3000" : "http://192.168.1.140:3000";
+    platform === "web" ? "http://localhost:3000" : "http://192.168.68.104:3000";
 
   // Hämta användarprofil
   useFocusEffect(
@@ -56,16 +56,14 @@ const ProfileScreen: React.FC = () => {
           if (freshUser) {
             setUserData(freshUser);
             setUser(freshUser);
-            if (platform === "web") {
-              localStorage.setItem("id", freshUser._id);
-            } else {
-              await SecureStore.setItemAsync("id", freshUser._id);
-            }
+          } else {
+            setUserData(null); // ❌ viktigt: sätt till null om inget returneras
           }
         } catch (err) {
           console.error(err);
+          setUserData(null); // ❌ också här
         } finally {
-          setLoading(false);
+          setLoading(false); // ✅ alltid false i slutet
         }
       };
       fetchUserData();
@@ -73,23 +71,6 @@ const ProfileScreen: React.FC = () => {
   );
 
   // Refresh user
-  useEffect(() => {
-    const refreshUser = async () => {
-      if (!user && token) {
-        try {
-          const data = await getProfile(token);
-          if (data) {
-            setUserData(data);
-            setUser(data);
-            setLoading(false);
-          }
-        } catch (err) {
-          console.error("Refresh failed:", err);
-        }
-      }
-    };
-    refreshUser();
-  }, [user, token]);
 
   const handlePress = (item: Post) => {
     setSelectedPost(item);

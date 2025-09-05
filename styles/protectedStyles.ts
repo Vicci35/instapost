@@ -3,12 +3,13 @@ import { StyleSheet } from "react-native";
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
+    width: "100%",
     maxWidth: 600,
     alignSelf: "center",
-    width: "100%",
     paddingTop: 20,
+    paddingHorizontal: 12, // lägg till padding för inlägg
+    // alignItems: "center" <-- ta bort
+    // justifyContent: "center" <-- ta bort
   },
   button: {
     color: "white",
