@@ -31,7 +31,7 @@ export const handleNewPost = async (
   }
 
   const URL =
-    platform === "web" ? "http://localhost:3000" : "http://192.168.68.105:3000";
+    platform === "web" ? "http://localhost:3000" : "http://192.168.1.140:3000";
 
   const response = await fetch(URL + "/posts/new", {
     method: "POST",
