@@ -10,8 +10,12 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import styles from "../../styles/UserProfileScreenStyles"; // egen stylingfil
-import { getUserProfile } from "@/controllers/profileController";
+import {
+  getUserProfile,
+  getUserProfileByName,
+} from "@/controllers/profileController";
 import { UserContext } from "@/contexts/userContext";
+import BioText from "@/app/components/BioText";
 
 type Post = {
   _id: string;
@@ -33,7 +37,8 @@ type User = {
 };
 
 type UserProfileScreenProps = {
-  userId: string;
+  userId?: string;
+  name?: string;
 };
 
 const BACKEND_URL =
@@ -41,7 +46,10 @@ const BACKEND_URL =
     ? "http://localhost:3000"
     : "http://192.168.68.105:3000";
 
-const UserProfileScreen: React.FC<UserProfileScreenProps> = ({ userId }) => {
+const UserProfileScreen: React.FC<UserProfileScreenProps> = ({
+  userId,
+  name,
+}) => {
   const { token, user } = useContext(UserContext);
   const [userData, setUserData] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -53,12 +61,22 @@ const UserProfileScreen: React.FC<UserProfileScreenProps> = ({ userId }) => {
         setLoading(false);
         return;
       }
-      try {
-        const data: User = await getUserProfile(userId, token);
-        setUserData(data);
 
-        if (user && data?.followers?.some((f) => f._id === user._id)) {
-          setIsFollowing(true);
+      try {
+        let data: User | null = null;
+
+        if (userId) {
+          data = await getUserProfile(userId, token);
+        } else if (name) {
+          data = await getUserProfileByName(name, token);
+        }
+
+        if (data) {
+          console.log("Fetched user profile:", data);
+          setUserData(data);
+          if (user && data.followers.some((f) => f._id === user._id)) {
+            setIsFollowing(true);
+          }
         }
       } catch (err) {
         console.error("Fel vid hämtning av användarprofil:", err);
@@ -68,7 +86,7 @@ const UserProfileScreen: React.FC<UserProfileScreenProps> = ({ userId }) => {
     };
 
     fetchUser();
-  }, [userId, token]);
+  }, [userId, name, token]);
 
   // Följ / Avfölj
   const toggleFollow = async () => {
@@ -151,7 +169,7 @@ const UserProfileScreen: React.FC<UserProfileScreenProps> = ({ userId }) => {
               {isFollowing ? "Avfölj" : "Följ"}
             </Text>
           </TouchableOpacity>
-          {userData.bio && <Text style={styles.bio}>{userData.bio}</Text>}
+          {userData.bio && <BioText bio={userData.bio} />}
         </View>
       </View>
 
@@ -159,9 +177,12 @@ const UserProfileScreen: React.FC<UserProfileScreenProps> = ({ userId }) => {
         data={userData.posts}
         keyExtractor={(item) => item._id}
         numColumns={3}
-        renderItem={({ item }) => (
-          <Image source={{ uri: item.imageUrl }} style={styles.postImage} />
-        )}
+        renderItem={({ item }) => {
+          console.log("Rendering post:", item);
+          return (
+            <Image source={{ uri: item.imageUrl }} style={styles.postImage} />
+          );
+        }}
         style={styles.postsContainer}
       />
     </SafeAreaView>
