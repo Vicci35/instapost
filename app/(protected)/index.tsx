@@ -140,18 +140,27 @@ export default function Home() {
 
   //Hämtar gillade inlägg
   const fetchLikedPosts = async () => {
-    if (!user || !user._id) return;
-    try {
-      const response = await fetch(`${BACKEND_URL}/posts/likes/${user._id}`);
-      if (!response.ok) throw new Error("Kunde inte hämta gillade inlägg");
-      const data = await response.json();
-      setLikedPosts(data);
 
-      console.log("Mottagen lista av gillade inlägg:", data);
-    } catch (error) {
-      console.error("Fel vid hämtning av gillade inlägg:", error);
+    if (!currentUserId || !token) {
+        return;
     }
-  };
+    try {
+        const response = await fetch(`${BACKEND_URL}/posts/likes/${currentUserId}`, {
+            headers: {
+                "Authorization": `Bearer ${token}` 
+            }
+        });
+        if (!response.ok) {
+            throw new Error("Kunde inte hämta gillade inlägg");
+        }
+        const data = await response.json();
+        setLikedPosts(data); 
+    } catch (error) {
+        console.error("Fel vid hämtning av gillade inlägg:", error);
+    }
+};
+  
+
 
   useEffect(() => {
     if (token) {
