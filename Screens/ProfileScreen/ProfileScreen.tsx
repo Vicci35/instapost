@@ -43,7 +43,7 @@ const ProfileScreen: React.FC = () => {
   const postMargin = 2;
   const postSize = screenWidth / 3 - postMargin * 2;
   const BACKEND_URL =
-    platform === "web" ? "http://localhost:3000" : "http://192.168.68.104:3000";
+    platform === "web" ? "http://localhost:3000" : "http://192.168.1.140:3000";
 
   // Hämta användarprofil
   useFocusEffect(
