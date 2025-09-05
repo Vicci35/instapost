@@ -115,6 +115,7 @@ export default function Home() {
         throw new Error("Kunde inte skicka kommentar");
       }
 
+
       const data = await response.json();
 
       setPosts((prevPosts) =>
@@ -135,18 +136,27 @@ export default function Home() {
 
   //Hämtar gillade inlägg
   const fetchLikedPosts = async () => {
-    if (!user || !user._id) return;
-    try {
-      const response = await fetch(`${BACKEND_URL}/posts/likes/${user._id}`);
-      if (!response.ok) throw new Error("Kunde inte hämta gillade inlägg");
-      const data = await response.json();
-      setLikedPosts(data);
 
-      console.log("Mottagen lista av gillade inlägg:", data);
-    } catch (error) {
-      console.error("Fel vid hämtning av gillade inlägg:", error);
+    if (!currentUserId || !token) {
+        return;
     }
-  };
+    try {
+        const response = await fetch(`${BACKEND_URL}/posts/likes/${currentUserId}`, {
+            headers: {
+                "Authorization": `Bearer ${token}` 
+            }
+        });
+        if (!response.ok) {
+            throw new Error("Kunde inte hämta gillade inlägg");
+        }
+        const data = await response.json();
+        setLikedPosts(data); 
+    } catch (error) {
+        console.error("Fel vid hämtning av gillade inlägg:", error);
+    }
+};
+  
+
 
   useEffect(() => {
     if (token) {
@@ -173,7 +183,9 @@ export default function Home() {
     }
   }, [searchText, allUsers]);
 
+
   const handleLike = async (postID: string, userID: string) => {
+
     if (!userID || !token) {
       console.error("Användaren är inte inloggad.");
       return;
@@ -218,7 +230,9 @@ export default function Home() {
   // Funktion för att navigera till användarprofil
   const navigateToUserProfile = (userId: string) => {
     // Använd replace istället för push för att undvika ny tab
-    router.replace(`/(protected)/userId/${userId}`);
+
+    router.replace(`/(protected)/(userProfile)/${userId}`);
+
   };
 
   if (loading) {

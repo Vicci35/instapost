@@ -3,7 +3,7 @@ export const refreshUserData = async (
   userID: string | null
 ) => {
   const URL =
-    platform === "web" ? "http://localhost:3000" : "http://192.168.1.198:3000";
+    platform === "web" ? "http://localhost:3000" : "http://192.168.68.104:3000";
 
   const response = await fetch(URL + "/api/users/refresh", {
     method: "POST",

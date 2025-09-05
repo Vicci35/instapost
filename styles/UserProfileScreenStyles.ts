@@ -74,4 +74,46 @@ export default StyleSheet.create({
     width: "100%",
     height: "100%",
   },
+  modalOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.6)",
+  },
+  modalBackground: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  modalContent: {
+    width: "90%",
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    padding: 16,
+    alignItems: "center",
+  },
+  modalImage: {
+    width: "100%",
+    height: 300,
+    marginVertical: 12,
+  },
+  modalCaption: {
+    fontSize: 16,
+    color: "#333",
+  },
+  actions: {
+    flexDirection: "row",
+    justifyContent: "flex-start",
+    marginVertical: 8,
+    width: "100%",
+  },
+  iconButton: {
+    marginRight: 16,
+  },
 });
