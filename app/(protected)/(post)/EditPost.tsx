@@ -16,7 +16,7 @@ import { handleNewPost } from "@/controllers/ImageController";
 
 export default function EditPost() {
   const router = useRouter();
-  const { uri } = useImage();
+  const { uri, setUri } = useImage();
   const [caption, setCaption] = useState<string>("");
   const { user, token, setUser, logout } = useContext(UserContext);
   const platform = Platform.OS;
@@ -34,7 +34,12 @@ export default function EditPost() {
       platform,
       user.profileImageUrl
     );
-    router.push("/");
+    // Reset URI and return to home page
+    setUri(null);
+    router.back();
+    setTimeout(() => {
+      router.push("/");
+    }, 100);
   };
 
   return (
