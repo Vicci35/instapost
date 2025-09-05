@@ -97,24 +97,44 @@ export default function Home() {
   };
 
 
-  const handleComment = async (postId: string, comment: string) => {
-
-    if (!currentUserId) return;
+  const handleComment = async (postID: string, comment: string) => {
+    if (!user || !user.name || !user._id) {
+        console.error("Användardata är inte tillgänglig. Kan inte kommentera.");
+        return; 
+    }   
     try {
-      await fetch(`${BACKEND_URL}/posts/${postID}/comment`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          comment,
-          userID: currentUserId,
+        const response = await fetch(`${BACKEND_URL}/posts/${postID}/comment`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                comment,
+                userId: user._id,
+                username: user.name,
+            }),
+        });
+        
+        if (!response.ok) {
+            throw new Error("Kunde inte skicka kommentar");
+        }
+        
+        const data = await response.json();
+        
+        setPosts((prevPosts) =>
+            prevPosts.map((post) => {
+                if (post._id === postID) {
+                    return {
+                        ...post,
+                        comments: data.comments,
+                    };
+                }
+                return post;
+            })
+        );
 
-          username: user?.username || "okänd_användare",
-        }),
-      });
     } catch (error) {
-      console.error("Kunde inte skicka kommentar:", error);
+        console.error("Kunde inte skicka kommentar:", error);
     }
-  };
+};
 
   //Hämtar gillade inlägg
   const fetchLikedPosts = async () => {
@@ -158,12 +178,10 @@ export default function Home() {
     }
   }, [searchText, allUsers]);
 
-
-  const handleLike = async (postId: string) => {
-    if (!currentUserId) {
-      console.error("Användaren är inte inloggad.");
-      return;
-
+const handleLike = async (postID: string, userID: string) => {
+    if (!userID || !token) {
+        console.error("Användaren är inte inloggad.");
+        return;
     }
     try {
       await fetch(`${BACKEND_URL}/posts/${postID}/like`, {
@@ -282,9 +300,10 @@ export default function Home() {
               caption={item.caption}
               likes={item.likes}
               comments={item.comments || []}
-              onLike={() => handleLike(item._id)}
+              onLike={() => handleLike(item._id, currentUserId)}
               onComment={(comment) => handleComment(item._id, comment)}
               isLiked={likedPosts.includes(item._id)}
+              userID= {currentUserId}
             />
           )}
           contentContainerStyle={{ padding: 12 }}
