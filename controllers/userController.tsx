@@ -9,7 +9,9 @@ export const updateProfile = async (
   platform: string
 ) => {
   const URL =
+
     platform === "web" ? "http://localhost:3000" : "http://192.168.1.198:3000";
+
 
   try {
     const formData = new FormData();

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { View, Text, Image, TouchableOpacity, TextInput, Button } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { styles } from "@/styles/postCardStyles";
+import { getImageUrl } from "@/util/urlHelper";
 
 interface Comment {
   text: string;
@@ -49,7 +50,7 @@ export default function PostCard({
     <View style={styles.card}>
       <View style={styles.header}>
         {profileImageUrl ? (
-          <Image source={{ uri: profileImageUrl }} style={styles.profileImage} />
+          <Image source={{ uri: getImageUrl(profileImageUrl )}} style={styles.profileImage} />
         ) : (
            <Image
            source={require("../../assets/images/defaultBildProfil.jpg")}
@@ -59,7 +60,7 @@ export default function PostCard({
         <Text style={styles.username}>{username}</Text>
       </View>
 
-      <Image source={{ uri: imageUrl }} style={styles.postImage} />
+      <Image source={{ uri: getImageUrl( imageUrl )}} style={styles.postImage} />
       
       <View style={styles.actions}>
         <TouchableOpacity onPress={() => onLike(id, userID)} style={styles.iconButton}>

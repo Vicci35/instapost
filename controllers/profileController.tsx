@@ -5,7 +5,7 @@ const BACKEND_URL =
 
   Platform.OS === "web"
     ? "http://localhost:3000"
-    : "http://192.168.68.104:3000";
+    : "http://192.168.1.140:3000";
 
 
 export const getProfile = async (token: string) => {
