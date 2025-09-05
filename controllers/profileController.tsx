@@ -46,3 +46,24 @@ export const getUserProfile = async (userId: string, token: string) => {
     throw error;
   }
 };
+
+export const getUserProfileByName = async (name: string, token: string) => {
+  try {
+    const res = await fetch(`${BACKEND_URL}/api/users/name/${name}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!res.ok) {
+      throw new Error(`Http error! status: : ${res.status}`);
+    }
+
+    const data = await res.json();
+    return data.user;
+  } catch (err) {
+    console.error("Fel vid hämtning av användarprofil (name):", err);
+    throw err;
+  }
+};
