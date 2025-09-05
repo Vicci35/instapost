@@ -12,6 +12,7 @@ export const editStyles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 16,
     backgroundColor: "#fff",
+    width: 200,
   },
   button: {
     color: "white",
