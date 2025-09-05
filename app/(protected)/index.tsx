@@ -54,7 +54,7 @@ export default function Home() {
   const BACKEND_URL =
     Platform.OS === "web"
       ? "http://localhost:3000"
-      : "http://192.168.1.140:3000";
+      : "http://192.168.1.198:3000";
 
   const currentUserId = user?._id;
 
@@ -182,54 +182,51 @@ export default function Home() {
     }
   }, [searchText, allUsers]);
 
-
-
- const handleLike = async (postID: string) => {
+  const handleLike = async (postID: string) => {
     if (!currentUserId || !token) {
-        console.error("Användaren eller token saknas.");
-        return;
-
+      console.error("Användaren eller token saknas.");
+      return;
     }
 
     try {
-        const isCurrentlyLiked = likedPosts.includes(postID);
-        const endpoint = "toggle-like";
+      const isCurrentlyLiked = likedPosts.includes(postID);
+      const endpoint = "toggle-like";
 
-        const response = await fetch(`${BACKEND_URL}/posts/${postID}/${endpoint}`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`,
-            },
-            body: JSON.stringify({ userID: currentUserId }),
-        });
-
-        if (!response.ok) {
-            throw new Error("Kunde inte ändra gilla-status");
+      const response = await fetch(
+        `${BACKEND_URL}/posts/${postID}/${endpoint}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ userID: currentUserId }),
         }
+      );
 
-        const data = await response.json();
+      if (!response.ok) {
+        throw new Error("Kunde inte ändra gilla-status");
+      }
 
-        
-        setPosts(prevPosts =>
-            prevPosts.map(post =>
-                post._id === postID ? { ...post, likes: data.likes } : post
-            )
-        );
+      const data = await response.json();
 
-        
-        setLikedPosts(prevLikedPosts => {
-            if (isCurrentlyLiked) {
-                return prevLikedPosts.filter(id => id !== postID);
-            } else {
-                return [...prevLikedPosts, postID];
-            }
-        });
+      setPosts((prevPosts) =>
+        prevPosts.map((post) =>
+          post._id === postID ? { ...post, likes: data.likes } : post
+        )
+      );
 
+      setLikedPosts((prevLikedPosts) => {
+        if (isCurrentlyLiked) {
+          return prevLikedPosts.filter((id) => id !== postID);
+        } else {
+          return [...prevLikedPosts, postID];
+        }
+      });
     } catch (error) {
-        console.error("Fel vid gilla-markering:", error);
+      console.error("Fel vid gilla-markering:", error);
     }
-};
+  };
 
   const onRefresh = () => {
     setRefreshing(true);

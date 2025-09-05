@@ -2,9 +2,7 @@
 import { Platform } from "react-native";
 
 const BACKEND_URL =
-  Platform.OS === "web"
-    ? "http://localhost:3000"
-    : "http://192.168.1.140:3000";
+  Platform.OS === "web" ? "http://localhost:3000" : "http://192.168.1.198:3000";
 
 export const getProfile = async (token: string) => {
   try {
