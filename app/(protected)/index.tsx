@@ -55,7 +55,7 @@ export default function Home() {
   const BACKEND_URL =
     Platform.OS === "web"
       ? "http://localhost:3000"
-      : "http://192.168.68.105:3000";
+      : "http://192.168.1.198:3000";
 
   const currentUserId = user?._id;
 
