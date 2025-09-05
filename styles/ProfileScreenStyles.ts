@@ -1,4 +1,7 @@
-import { StyleSheet } from "react-native";
+import { StyleSheet, Dimensions, Platform } from "react-native";
+
+const screenWidth = Dimensions.get("window").width;
+const isWeb = Platform.OS === "web";
 
 export default StyleSheet.create({
   container: {
@@ -10,15 +13,19 @@ export default StyleSheet.create({
     flexDirection: "row",
     padding: 16,
     alignItems: "center",
+    flexWrap: "wrap", // så infoContainer bryts på små skärmar
   },
   profilePic: {
-    width: 90,
-    height: 90,
-    borderRadius: 45,
+    width: Math.min(90, screenWidth / 4),
+    height: Math.min(90, screenWidth / 4),
+    borderRadius: Math.min(90, screenWidth / 4) / 2,
+    resizeMode: "cover",
+    marginBottom: 8,
   },
   infoContainer: {
     flex: 1,
     marginLeft: 16,
+    minWidth: 0, // gör att text bryts korrekt på små skärmar
   },
   name: {
     fontSize: 20,
@@ -44,8 +51,7 @@ export default StyleSheet.create({
   buttonRow: {
     flexDirection: "row",
     marginTop: 8,
-    justifyContent: "flex-start",
-    gap: 8,
+    flexWrap: "wrap", // knappar bryts på små skärmar
   },
   editButton: {
     padding: 8,
@@ -53,6 +59,9 @@ export default StyleSheet.create({
     borderColor: "#ccc",
     borderRadius: 6,
     alignItems: "center",
+    flex: isWeb ? undefined : 1, // på mobil tar den upp hela raden
+    marginRight: 8,
+    marginBottom: 8,
   },
   editButtonText: {
     fontSize: 14,
@@ -64,28 +73,22 @@ export default StyleSheet.create({
     borderColor: "blue",
     borderRadius: 6,
     alignItems: "center",
+    flex: isWeb ? undefined : 1,
+    marginRight: 8,
+    marginBottom: 8,
   },
-
   followButtonText: {
     fontSize: 14,
     fontWeight: "500",
     color: "blue",
   },
-  // postsContainer: {
-  //   flex: 1,
-  // },
-  // postImage: {
-  //   width: "33%",
-  //   height: 120,
-  // },
   button: {
-    color: "white",
     backgroundColor: "#1DA1F2",
     padding: 8,
     borderRadius: 12,
-    width: 250,
-    textAlign: "center",
-    margin: "auto",
+    width: isWeb ? 250 : "80%",
+    alignSelf: "center",
+    marginVertical: 16,
   },
   buttonText: {
     textAlign: "center",
@@ -96,16 +99,13 @@ export default StyleSheet.create({
     fontSize: 14,
     color: "black",
     marginTop: 8,
-    marginLeft: 16,
-    marginRight: 16,
+    flexWrap: "wrap",
   },
   postsContainer: {
     flex: 1,
   },
   postWrapper: {
-    flex: 1 / 3, // Delar upp raden i tre kolumner
-    aspectRatio: 1, // Gör rutan kvadratisk
-    margin: 1, // Lite mellanrum mellan bilderna
+    margin: 2,
   },
   postImage: {
     width: "100%",
@@ -121,7 +121,6 @@ export default StyleSheet.create({
     alignItems: "center",
     zIndex: 10,
   },
-
   modalBackground: {
     position: "absolute",
     top: 0,
@@ -130,7 +129,6 @@ export default StyleSheet.create({
     bottom: 0,
     backgroundColor: "rgba(0,0,0,0.5)",
   },
-
   modalContent: {
     width: "90%",
     backgroundColor: "#fff",
@@ -138,16 +136,15 @@ export default StyleSheet.create({
     padding: 10,
     alignItems: "center",
   },
-
   modalImage: {
     width: "100%",
     height: 300,
     borderRadius: 10,
   },
-
   modalCaption: {
     fontSize: 16,
     textAlign: "center",
+    marginTop: 8,
   },
   actions: {
     flexDirection: "row",

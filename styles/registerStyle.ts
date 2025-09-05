@@ -21,6 +21,8 @@ export const styles = StyleSheet.create({
     marginBottom: 15,
     borderRadius: 5,
     width: 250,
+    backgroundColor: "#fff",
+    color: "#000",
   },
   button: {
     backgroundColor: "#1DA1F2",

@@ -30,11 +30,10 @@ export const handleNewPost = async (
       });
       imageBase64 = `data:image/jpeg;base64,${imageBase64}`; // Lägg till data URI-prefix
     }
-
   }
 
   const URL =
-    platform === "web" ? "http://localhost:3000" : "http://192.168.1.140:3000";
+    platform === "web" ? "http://localhost:3000" : "http://192.168.68.104:3000";
 
   const response = await fetch(URL + "/posts/new", {
     method: "POST",
