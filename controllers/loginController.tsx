@@ -4,7 +4,7 @@ export const sendCredentials = async (
   platform: string
 ) => {
   const URL =
-    platform === "web" ? "http://localhost:3000" : "http://192.168.1.207:3000";
+    platform === "web" ? "http://localhost:3000" : "http://192.168.68.104:3000";
 
   try {
     const response = await fetch(URL + "/api/login", {

@@ -4,19 +4,9 @@ export const handleNewPost = async (
   id: string,
   uri: string | null,
   platform: string,
-  profileImageUrl?: string,
+  profileImageUrl?: string
 ) => {
   let imageBase64: string | null = null;
-
-  // if (uri && platform === "web") {
-  //   const response = await fetch(uri);
-  //   const blob = await response.blob();
-  //   const arrayBuffer = await blob.arrayBuffer();
-  //   const base64String = btoa(
-  //     String.fromCharCode(...new Uint8Array(arrayBuffer))
-  //   );
-  //   imageBase64 = `data:${blob.type};base64,${base64String}`;
-  // }
 
   if (uri && platform === "web") {
     const response = await fetch(uri);
@@ -26,12 +16,12 @@ export const handleNewPost = async (
     imageBase64 = await new Promise((resolve, reject) => {
       reader.onloadend = () => resolve(reader.result as string);
       reader.onerror = reject;
-      reader.readAsDataURL(blob); // Gör om till base64 direkt
+      reader.readAsDataURL(blob);
     });
   }
 
   const URL =
-    platform === "web" ? "http://localhost:3000" : "http://192.168.68.105:3000";
+    platform === "web" ? "http://localhost:3000" : "http://192.168.68.104:3000";
 
   const response = await fetch(URL + "/posts/new", {
     method: "POST",
