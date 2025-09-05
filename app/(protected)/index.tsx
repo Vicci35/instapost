@@ -96,15 +96,17 @@ export default function Home() {
     }
   };
 
+
   const handleComment = async (postId: string, comment: string) => {
+
     if (!currentUserId) return;
     try {
-      await fetch(`${BACKEND_URL}/posts/${postId}/comment`, {
+      await fetch(`${BACKEND_URL}/posts/${postID}/comment`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           comment,
-          userId: currentUserId,
+          userID: currentUserId,
 
           username: user?.username || "okänd_användare",
         }),
@@ -114,13 +116,31 @@ export default function Home() {
     }
   };
 
+  //Hämtar gillade inlägg
+  const fetchLikedPosts = async () => {
+        if (!user || !user._id) return; 
+        try {
+            const response = await fetch(`${BACKEND_URL}/posts/likes/${user._id}`);
+            if (!response.ok) throw new Error("Kunde inte hämta gillade inlägg");
+            const data = await response.json();
+            setLikedPosts(data); 
+
+            console.log("Mottagen lista av gillade inlägg:", data);
+
+        } catch (error) {
+            console.error("Fel vid hämtning av gillade inlägg:", error);
+        }
+    };
+  
+
   useEffect(() => {
     if (token) {
       // Vänta tills vi har token
       fetchPosts();
       fetchUsers();
+      fetchLikedPosts();
     }
-  }, [token]);
+  }, [token, user]);
 
   useEffect(() => {
     if (searchText.length > 0) {
@@ -138,29 +158,31 @@ export default function Home() {
     }
   }, [searchText, allUsers]);
 
+
   const handleLike = async (postId: string) => {
     if (!currentUserId) {
       console.error("Användaren är inte inloggad.");
       return;
+
     }
     try {
-      await fetch(`${BACKEND_URL}/posts/${postId}/like`, {
+      await fetch(`${BACKEND_URL}/posts/${postID}/like`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: currentUserId }),
+        body: JSON.stringify({ userID: userID }),
       });
 
-      const isCurrentlyLiked = likedPosts.includes(postId);
+      const isCurrentlyLiked = likedPosts.includes(postID);
 
       if (isCurrentlyLiked) {
-        setLikedPosts(likedPosts.filter((id) => id !== postId));
+        setLikedPosts(likedPosts.filter((id) => id !== postID));
       } else {
-        setLikedPosts([...likedPosts, postId]);
+        setLikedPosts([...likedPosts, postID]);
       }
 
       setPosts((prevPosts) =>
         prevPosts.map((post) => {
-          if (post._id === postId) {
+          if (post._id === postID) {
             return {
               ...post,
               likes: isCurrentlyLiked ? post.likes - 1 : post.likes + 1,
@@ -177,6 +199,7 @@ export default function Home() {
   const onRefresh = () => {
     setRefreshing(true);
     fetchPosts();
+    fetchLikedPosts();
   };
 
   // Funktion för att navigera till användarprofil
@@ -269,6 +292,7 @@ export default function Home() {
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
           }
         />
+
       )}
     </SafeAreaView>
   );
