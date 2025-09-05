@@ -97,6 +97,7 @@ export default function Home() {
   };
 
 
+
   const handleComment = async (postID: string, comment: string) => {
     if (!user || !user.name || !user._id) {
         console.error("Användardata är inte tillgänglig. Kan inte kommentera.");
@@ -131,6 +132,7 @@ export default function Home() {
             })
         );
 
+
     } catch (error) {
         console.error("Kunde inte skicka kommentar:", error);
     }
@@ -138,20 +140,18 @@ export default function Home() {
 
   //Hämtar gillade inlägg
   const fetchLikedPosts = async () => {
-        if (!user || !user._id) return; 
-        try {
-            const response = await fetch(`${BACKEND_URL}/posts/likes/${user._id}`);
-            if (!response.ok) throw new Error("Kunde inte hämta gillade inlägg");
-            const data = await response.json();
-            setLikedPosts(data); 
+    if (!user || !user._id) return;
+    try {
+      const response = await fetch(`${BACKEND_URL}/posts/likes/${user._id}`);
+      if (!response.ok) throw new Error("Kunde inte hämta gillade inlägg");
+      const data = await response.json();
+      setLikedPosts(data);
 
-            console.log("Mottagen lista av gillade inlägg:", data);
-
-        } catch (error) {
-            console.error("Fel vid hämtning av gillade inlägg:", error);
-        }
-    };
-  
+      console.log("Mottagen lista av gillade inlägg:", data);
+    } catch (error) {
+      console.error("Fel vid hämtning av gillade inlägg:", error);
+    }
+  };
 
   useEffect(() => {
     if (token) {
@@ -178,29 +178,31 @@ export default function Home() {
     }
   }, [searchText, allUsers]);
 
+
 const handleLike = async (postID: string, userID: string) => {
     if (!userID || !token) {
         console.error("Användaren är inte inloggad.");
         return;
+
     }
     try {
-      await fetch(`${BACKEND_URL}/posts/${postID}/like`, {
+      await fetch(`${BACKEND_URL}/posts/${postId}/like`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userID: userID }),
+        body: JSON.stringify({ userID: user._id }),
       });
 
-      const isCurrentlyLiked = likedPosts.includes(postID);
+      const isCurrentlyLiked = likedPosts.includes(postId);
 
       if (isCurrentlyLiked) {
-        setLikedPosts(likedPosts.filter((id) => id !== postID));
+        setLikedPosts(likedPosts.filter((id) => id !== postId));
       } else {
-        setLikedPosts([...likedPosts, postID]);
+        setLikedPosts([...likedPosts, postId]);
       }
 
       setPosts((prevPosts) =>
         prevPosts.map((post) => {
-          if (post._id === postID) {
+          if (post._id === postId) {
             return {
               ...post,
               likes: isCurrentlyLiked ? post.likes - 1 : post.likes + 1,
@@ -220,8 +222,12 @@ const handleLike = async (postID: string, userID: string) => {
     fetchLikedPosts();
   };
 
-  const navigateToUserProfile = (name: string) => {
-    router.push(`/(protected)/(userProfile)/${name}`);
+
+  // Funktion för att navigera till användarprofil
+  const navigateToUserProfile = (userId: string) => {
+    // Använd replace istället för push för att undvika ny tab
+    router.replace(`/(protected)/userId/${userId}`);
+
   };
 
   if (loading) {
@@ -301,7 +307,9 @@ const handleLike = async (postID: string, userID: string) => {
               onLike={() => handleLike(item._id, currentUserId)}
               onComment={(comment) => handleComment(item._id, comment)}
               isLiked={likedPosts.includes(item._id)}
-              userID= {currentUserId}
+
+              userID={currentUserId}
+
             />
           )}
           contentContainerStyle={{ padding: 12 }}
@@ -309,7 +317,6 @@ const handleLike = async (postID: string, userID: string) => {
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
           }
         />
-
       )}
     </SafeAreaView>
   );

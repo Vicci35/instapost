@@ -21,12 +21,21 @@ export default function EditPost() {
   const { user, token, setUser, logout } = useContext(UserContext);
   const platform = Platform.OS;
 
-  // useEffect(() => {
-  //   console.log("input:", text);
-  //   console.log("name:", user.name);
-  //   console.log("userId:", user._id);
-  //   // Send platform as well
-  // }, [text]);
+  const saveAndReturn = async () => {
+    if (!user) {
+      console.error("No user found. Could not post.");
+    }
+
+    await handleNewPost(
+      caption,
+      user.name,
+      user._id,
+      uri,
+      platform,
+      user.profileImageUrl
+    );
+    router.push("/");
+  };
 
   return (
     <SafeAreaView>
@@ -44,12 +53,7 @@ export default function EditPost() {
           maxLength={100}
         />
 
-        <TouchableOpacity
-          style={editStyles.button}
-          onPress={() =>
-            handleNewPost(caption, user.name, user._id, uri, platform, user.profileImageUrl)
-          }
-        >
+        <TouchableOpacity style={editStyles.button} onPress={saveAndReturn}>
           <Text style={editStyles.buttonText}>Post</Text>
         </TouchableOpacity>
 
