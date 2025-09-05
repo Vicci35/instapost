@@ -15,7 +15,6 @@ import {
   getUserProfileByName,
 } from "@/controllers/profileController";
 import { UserContext } from "@/contexts/userContext";
-import BioText from "@/app/components/BioText";
 import { Ionicons } from "@expo/vector-icons";
 
 type Post = {
@@ -177,7 +176,19 @@ const UserProfileScreen: React.FC<UserProfileScreenProps> = ({
               {isFollowing ? "Avfölj" : "Följ"}
             </Text>
           </TouchableOpacity>
-          {userData.bio && <BioText bio={userData.bio} />}
+          {userData.bio && (
+            <Text
+              style={{
+                fontSize: 14,
+                color: "black",
+                marginTop: 8,
+                marginLeft: 16,
+                marginRight: 16,
+              }}
+            >
+              {userData.bio}
+            </Text>
+          )}
         </View>
       </View>
 
@@ -195,6 +206,7 @@ const UserProfileScreen: React.FC<UserProfileScreenProps> = ({
         )}
         style={styles.postsContainer}
       />
+
       {selectedPost && (
         <View style={styles.modalOverlay}>
           <TouchableOpacity

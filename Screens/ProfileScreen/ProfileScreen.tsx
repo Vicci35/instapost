@@ -15,9 +15,7 @@ import { getProfile } from "@/controllers/profileController";
 import styles from "../../styles/ProfileScreenStyles";
 import { handleLogout } from "@/controllers/logoutController";
 import { UserContext } from "@/contexts/userContext";
-import { refreshUserData } from "@/controllers/refreshController";
 import { Ionicons } from "@expo/vector-icons";
-import BioText from "@/app/components/BioText";
 
 type Post = {
   _id: string;
@@ -71,7 +69,6 @@ const ProfileScreen: React.FC = () => {
 
   useEffect(() => {
     const refreshUser = async () => {
-      // const platform = "web"; // vi kör bara web nu
       let userID: string | null = null;
       if (platform === "web") {
         userID = localStorage.getItem("id");
@@ -81,7 +78,7 @@ const ProfileScreen: React.FC = () => {
       }
 
       try {
-        const data = await refreshUserData(platform, userID);
+        const data = await getProfile(token); // återanvänd getProfile för refresh
         console.log("Refreshed user:", data);
         if (data) {
           setUserData(data);
@@ -94,11 +91,7 @@ const ProfileScreen: React.FC = () => {
     };
 
     if (!user) refreshUser();
-  }, [user]);
-
-  // const renderPost: ListRenderItem<Post> = ({ item }) => (
-  //   <Image source={{ uri: item.imageUrl }} style={styles.postImage} />
-  // );
+  }, [user, token]);
 
   const handlePress = (item: Post) => {
     setSelectedPost(item);
@@ -162,7 +155,19 @@ const ProfileScreen: React.FC = () => {
               <Text style={styles.editButtonText}>Redigera profil</Text>
             </TouchableOpacity>
           </View>
-          {userData.bio && <BioText bio={userData.bio} />}
+          {userData.bio && (
+            <Text
+              style={{
+                fontSize: 14,
+                color: "black",
+                marginTop: 8,
+                marginLeft: 16,
+                marginRight: 16,
+              }}
+            >
+              {userData.bio}
+            </Text>
+          )}
         </View>
       </View>
 
