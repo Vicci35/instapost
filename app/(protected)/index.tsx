@@ -179,10 +179,8 @@ export default function Home() {
     fetchPosts();
   };
 
-  // Funktion för att navigera till användarprofil
-  const navigateToUserProfile = (userId: string) => {
-    // Använd replace istället för push för att undvika ny tab
-    router.push(`/(protected)/(userProfile)/${userId}`);
+  const navigateToUserProfile = (name: string) => {
+    router.push(`/(protected)/(userProfile)/${name}`);
   };
 
   if (loading) {
@@ -216,7 +214,7 @@ export default function Home() {
             keyExtractor={(item) => item._id}
             renderItem={({ item }) => (
               <TouchableOpacity
-                onPress={() => navigateToUserProfile(item._id)}
+                onPress={() => navigateToUserProfile(item.name)}
                 style={{
                   padding: 10,
                   borderBottomWidth: 1,
