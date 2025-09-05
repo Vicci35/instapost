@@ -48,10 +48,10 @@ export default function RegisterScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Register account</Text>
-      {/* Email */}
       <TextInput
         style={styles.input}
         placeholder="Email"
+        placeholderTextColor="#333" // <- gör placeholder mörkgrå/svart
         value={newUser.email}
         onChangeText={(text: string) =>
           setUser((prev) => ({ ...prev, email: text }))
@@ -59,21 +59,20 @@ export default function RegisterScreen() {
         keyboardType="email-address"
       />
 
-      {/* Username */}
       <TextInput
         style={styles.input}
         placeholder="Username"
+        placeholderTextColor="#333"
         value={newUser.username}
         onChangeText={(text: string) =>
           setUser((prev) => ({ ...prev, username: text }))
         }
-        keyboardType="email-address"
       />
 
-      {/* Password */}
       <TextInput
         style={styles.input}
         placeholder="Password"
+        placeholderTextColor="#333"
         value={newUser.password}
         onChangeText={(text: string) =>
           setUser((prev) => ({ ...prev, password: text }))
@@ -81,10 +80,10 @@ export default function RegisterScreen() {
         secureTextEntry
       />
 
-      {/* Repeat Password */}
       <TextInput
         style={styles.input}
         placeholder="Repeat password"
+        placeholderTextColor="#333"
         value={newUser.repeatPassword}
         onChangeText={(text: string) =>
           setUser((prev) => ({ ...prev, repeatPassword: text }))

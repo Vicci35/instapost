@@ -1,10 +1,13 @@
-import { StyleSheet } from "react-native";
+import { StyleSheet, Dimensions } from "react-native";
+
+const screenWidth = Dimensions.get("window").width;
+const postMargin = 2;
+export const postSize = screenWidth / 3 - postMargin * 2;
 
 export default StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
-    paddingHorizontal: 16,
   },
   header: {
     flexDirection: "row",
@@ -59,16 +62,15 @@ export default StyleSheet.create({
     fontSize: 14,
     color: "black",
     marginTop: 8,
-    marginLeft: 16,
-    marginRight: 16,
+    marginHorizontal: 16,
   },
   postsContainer: {
     flex: 1,
   },
   postWrapper: {
-    flex: 1 / 3, // tre kolumner
-    aspectRatio: 1,
-    margin: 1,
+    width: postSize,
+    height: postSize,
+    margin: postMargin,
   },
   postImage: {
     width: "100%",

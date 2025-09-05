@@ -54,7 +54,7 @@ export default function Home() {
   const BACKEND_URL =
     Platform.OS === "web"
       ? "http://localhost:3000"
-      : "http://192.168.1.140:3000";
+      : "http://192.168.68.104:3000";
 
   const currentUserId = user?._id;
 
@@ -182,54 +182,51 @@ export default function Home() {
     }
   }, [searchText, allUsers]);
 
-
-
- const handleLike = async (postID: string) => {
+  const handleLike = async (postID: string) => {
     if (!currentUserId || !token) {
-        console.error("Användaren eller token saknas.");
-        return;
-
+      console.error("Användaren eller token saknas.");
+      return;
     }
 
     try {
-        const isCurrentlyLiked = likedPosts.includes(postID);
-        const endpoint = "toggle-like";
+      const isCurrentlyLiked = likedPosts.includes(postID);
+      const endpoint = "toggle-like";
 
-        const response = await fetch(`${BACKEND_URL}/posts/${postID}/${endpoint}`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`,
-            },
-            body: JSON.stringify({ userID: currentUserId }),
-        });
-
-        if (!response.ok) {
-            throw new Error("Kunde inte ändra gilla-status");
+      const response = await fetch(
+        `${BACKEND_URL}/posts/${postID}/${endpoint}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ userID: currentUserId }),
         }
+      );
 
-        const data = await response.json();
+      if (!response.ok) {
+        throw new Error("Kunde inte ändra gilla-status");
+      }
 
-        
-        setPosts(prevPosts =>
-            prevPosts.map(post =>
-                post._id === postID ? { ...post, likes: data.likes } : post
-            )
-        );
+      const data = await response.json();
 
-        
-        setLikedPosts(prevLikedPosts => {
-            if (isCurrentlyLiked) {
-                return prevLikedPosts.filter(id => id !== postID);
-            } else {
-                return [...prevLikedPosts, postID];
-            }
-        });
+      setPosts((prevPosts) =>
+        prevPosts.map((post) =>
+          post._id === postID ? { ...post, likes: data.likes } : post
+        )
+      );
 
+      setLikedPosts((prevLikedPosts) => {
+        if (isCurrentlyLiked) {
+          return prevLikedPosts.filter((id) => id !== postID);
+        } else {
+          return [...prevLikedPosts, postID];
+        }
+      });
     } catch (error) {
-        console.error("Fel vid gilla-markering:", error);
+      console.error("Fel vid gilla-markering:", error);
     }
-};
+  };
 
   const onRefresh = () => {
     setRefreshing(true);
@@ -252,82 +249,75 @@ export default function Home() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <TextInput
-        ref={searchInputRef}
-        placeholder="Sök användare..."
-        value={searchText}
-        onChangeText={setSearchText}
-        style={{
-          borderWidth: 1,
-          borderColor: "#ccc",
-          padding: 8,
-          marginTop: 30,
-          borderRadius: 8,
-        }}
-      />
+      <View style={{ padding: 12 }}>
+        <TextInput
+          ref={searchInputRef}
+          placeholder="Sök användare..."
+          placeholderTextColor="#555"
+          value={searchText}
+          onChangeText={setSearchText}
+          style={{
+            borderWidth: 1,
+            borderColor: "#ccc",
+            padding: 8,
+            borderRadius: 8,
+            fontSize: 16,
+            backgroundColor: "#fff",
+            color: "#000",
+          }}
+        />
+      </View>
 
       {searchText.length > 0 && (
-        <View style={{ marginBottom: 10 }}>
-          <FlatList
-            data={searchResults}
-            keyExtractor={(item) => item._id}
-            renderItem={({ item }) => (
-              <TouchableOpacity
-                onPress={() => navigateToUserProfile(item._id)}
-                style={{
-                  padding: 10,
-                  borderBottomWidth: 1,
-                  borderBottomColor: "#eee",
-                }}
-              >
-                <Text style={{ fontWeight: "bold" }}>
-                  {item.name || item.username}
-                </Text>
-              </TouchableOpacity>
-            )}
-            contentContainerStyle={{ padding: 12 }}
-            ListHeaderComponent={
-              <Text
-                style={{ fontWeight: "bold", fontSize: 16, marginBottom: 5 }}
-              >
-                Sökresultat ({searchResults.length}):
-              </Text>
-            }
-          />
-        </View>
-      )}
-
-      {loading ? (
-        <ActivityIndicator
-          size="large"
-          color="#000"
-          style={{ marginTop: 20 }}
-        />
-      ) : (
         <FlatList
-          data={posts}
+          data={searchResults}
           keyExtractor={(item) => item._id}
           renderItem={({ item }) => (
-            <PostCard
-              id={item._id}
-              username={item.username}
-              profileImageUrl={item.profileImageUrl}
-              imageUrl={item.imageUrl}
-              caption={item.caption}
-              likes={item.likes}
-              comments={item.comments || []}
-              onLike={() => handleLike(item._id)}
-              onComment={(comment) => handleComment(item._id, comment)}
-              isLiked={likedPosts.includes(item._id)}
-              userID={currentUserId}
-            />
+            <TouchableOpacity
+              onPress={() => navigateToUserProfile(item._id)}
+              style={{
+                padding: 10,
+                borderBottomWidth: 1,
+                borderBottomColor: "#eee",
+              }}
+            >
+              <Text style={{ fontWeight: "bold" }}>
+                {item.name || item.username}
+              </Text>
+            </TouchableOpacity>
           )}
-          contentContainerStyle={{ padding: 12 }}
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          ListHeaderComponent={
+            <Text style={{ fontWeight: "bold", fontSize: 16, marginBottom: 5 }}>
+              Sökresultat ({searchResults.length}):
+            </Text>
           }
+          contentContainerStyle={{ paddingBottom: 12 }}
         />
       )}
+
+      <FlatList
+        data={posts}
+        keyExtractor={(item) => item._id}
+        renderItem={({ item }) => (
+          <PostCard
+            id={item._id}
+            username={item.username}
+            profileImageUrl={item.profileImageUrl}
+            imageUrl={item.imageUrl}
+            caption={item.caption}
+            likes={item.likes}
+            comments={item.comments || []}
+            onLike={() => handleLike(item._id)}
+            onComment={(comment) => handleComment(item._id, comment)}
+            isLiked={likedPosts.includes(item._id)}
+            userID={currentUserId}
+          />
+        )}
+        contentContainerStyle={{ padding: 12 }}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      />
     </SafeAreaView>
   );
 }

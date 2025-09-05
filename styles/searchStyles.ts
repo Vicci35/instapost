@@ -3,8 +3,6 @@ import { StyleSheet } from "react-native";
 export const searchStyle = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
     padding: 20,
     backgroundColor: "#fff",
   },
@@ -13,5 +11,15 @@ export const searchStyle = StyleSheet.create({
     marginBottom: 20,
     textAlign: "center",
     fontWeight: "bold",
+  },
+  searchInput: {
+    width: "100%",
+    borderWidth: 1,
+    borderColor: "#ccc",
+    padding: 10,
+    borderRadius: 8,
+    marginBottom: 10,
+    backgroundColor: "#fff",
+    color: "#000",
   },
 });
